@@ -3,6 +3,12 @@ use rand::Rng;
 
 pub const SCALE: f64 = 1e5;  // Use a fixed scaling factor
 
+fn round_to(value: f64, decimal_places: usize) -> f64 {
+    let factor = 10f64.powi(decimal_places as i32);
+    (value * factor).round() / factor
+}
+
+
 // Encode real numbers into polynomial form with scaling
 pub fn encode_float(plaintext: &[f64], scaling_factor: f64) -> Polynomial {
     if scaling_factor <= 0.0 {
@@ -38,46 +44,105 @@ pub fn encode_integers(plaintext: &[i64], scaling_factor: f64) -> Polynomial {
     Polynomial::new(coeffs)
 }
 
-// Decode polynomial back into real numbers by removing the scaling factor
 pub fn decode_float(ciphertext: &Polynomial, scaling_factor: f64, _is_multiplication: bool) -> Vec<f64> {
-    // Print the input ciphertext and scaling factor
     if scaling_factor <= 0.0 {
         panic!("Scaling factor must be positive");
     }
+    let threshold = 1e-10; // Define a small threshold for considering values as zero
+    let decimal_places = 2; // Number of decimal places for rounding
+
+    // Print the input ciphertext and scaling factor
     println!("Decoding polynomial coefficients {:?} with scaling factor {}", ciphertext.coeffs, scaling_factor);
 
-    // Perform decoding (reverse scaling)
+    // Perform decoding (reverse scaling) and apply thresholding and rounding
     let decoded_values: Vec<f64> = ciphertext.coeffs.iter()
-        .map(|&c| (c as f64) / scaling_factor)  // Reverse the scaling
+        .map(|&c| {
+            let value = (c as f64) / scaling_factor;
+            let rounded_value = round_to(value, decimal_places); // Round the value to 2 decimal places
+            // Apply thresholding to treat small values as zero
+            if rounded_value.abs() < threshold {
+                0.0
+            } else {
+                rounded_value
+            }
+        })
         .collect();
     
     // Print the decoded real numbers
-    println!("Decoded real numbers: {:?}", decoded_values);
+    println!("Decoded real numbers (with thresholding and rounding): {:?}", decoded_values);
 
     decoded_values
 }
 
-// Decode polynomial back into integers by removing the scaling factor
+
+
+
+// // Decode polynomial back into real numbers by removing the scaling factor
+// pub fn decode_float(ciphertext: &Polynomial, scaling_factor: f64, _is_multiplication: bool) -> Vec<f64> {
+//     // Print the input ciphertext and scaling factor
+//     if scaling_factor <= 0.0 {
+//         panic!("Scaling factor must be positive");
+//     }
+//     println!("Decoding polynomial coefficients {:?} with scaling factor {}", ciphertext.coeffs, scaling_factor);
+
+//     // Perform decoding (reverse scaling)
+//     let decoded_values: Vec<f64> = ciphertext.coeffs.iter()
+//         .map(|&c| (c as f64) / scaling_factor)  // Reverse the scaling
+//         .collect();
+    
+//     // Print the decoded real numbers
+//     println!("Decoded real numbers: {:?}", decoded_values);
+
+//     decoded_values
+// }
+
 pub fn decode_integers(ciphertext: &Polynomial, scaling_factor: f64) -> Vec<i64> {
     if scaling_factor <= 0.0 {
         panic!("Scaling factor must be positive");
     }
+
+    let threshold = 1e-10; // Define a small threshold for considering values as zero
+    let decimal_places = 0; // Number of decimal places for rounding integers
+
     // Print the input ciphertext and scaling factor
     println!("Decoding polynomial coefficients {:?} with scaling factor {}", ciphertext.coeffs, scaling_factor);
 
-    const TOLERANCE: f64 = 1e-10;  // Define a tolerance level for near-zero values
-
-    // Perform decoding (reverse scaling) and convert to i64
     let decoded_values: Vec<i64> = ciphertext.coeffs.iter()
-        .map(|&c| (c as f64) / scaling_factor)  // Reverse the scaling
-        .map(|x| if x.abs() < TOLERANCE { 0.0 } else { x.round() })  // Set small values to zero and round
-        .map(|x| x as i64)  // Convert to i64
+        .map(|&c| {
+            let value = (c as f64) / scaling_factor;
+            let rounded_value = round_to(value, decimal_places); // Round to nearest integer
+            // Apply thresholding to avoid precision errors
+            if rounded_value.abs() < threshold {
+                0
+            } else {
+                rounded_value as i64
+            }
+        })
         .collect();
-    // Print the decoded integers
-    println!("Decoded integers: {:?}", decoded_values);
+
+    // Print the decoded integer values
+    println!("Decoded integer values (with thresholding and rounding): {:?}", decoded_values);
 
     decoded_values
 }
+
+
+
+// Decode polynomial back into integers by removing the scaling factor
+// pub fn decode_integers(ciphertext: &Polynomial, scaling_factor: f64) -> Vec<i64> {
+//     if scaling_factor <= 0.0 {
+//         panic!("Scaling factor must be positive");
+//     }
+//     // Print the input ciphertext and scaling factor
+//     println!("Decoding polynomial coefficients {:?} with scaling factor {}", ciphertext.coeffs, scaling_factor);
+
+
+//     let decoded_values: Vec<i64> = ciphertext.coeffs.iter()
+//         .map(|&c| ((c as f64) / scaling_factor).round() as i64)  // Reverse the scaling and round
+//         .collect();
+
+//     decoded_values
+// }
 
 
 // Add noise to a polynomial
