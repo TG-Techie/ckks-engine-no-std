@@ -5,6 +5,7 @@ pub mod ckks;
 pub mod polynomial;
 pub mod keygen;
 pub mod utils;
+pub mod arithmetic;
 
 // Re-export key structs/functions from modules for easy access
 pub use ckks::{CKKSEncryptor, CKKSDecryptor, CkksParameters};
