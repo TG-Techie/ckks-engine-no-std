@@ -45,7 +45,7 @@ fn main() {
     println!("Decrypted plaintext 2: {:?}", decrypted_plaintext2);
 
     // Example integer plaintext to be encrypted
-    let plaintext_integers = vec![20, 40, 80]; 
+    let plaintext_integers = vec![20000000, 40, 80]; 
     let plaintext_integers2 = vec![4,2,8];
     let neg = vec![-1,2,-3];
 
