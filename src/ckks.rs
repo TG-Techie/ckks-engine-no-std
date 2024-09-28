@@ -46,6 +46,35 @@ impl CKKSEncryptor {
         ciphertext
     }
 
+    pub fn encrypt_single<T>(&self, plaintext: T) -> Polynomial
+where
+    T: Into<f64> + Copy, // Accepts a type that can be converted into f64
+{
+    // Step 1: Convert the input value into a vector of f64
+    let plaintext_vec: Vec<f64> = vec![plaintext.into()];
+
+    // Step 2: Encode the plaintext into a polynomial
+    let scaling_factor = 10000000000000.0; // Set a scaling factor for encoding
+    let encoded = encode_float(&plaintext_vec, scaling_factor);
+    println!("Encoded plaintext: {:?}", encoded);
+
+    // Step 3: Use public key for encryption
+    let encrypted_poly: Vec<i64> = encoded.coeffs.iter()
+        .zip(&self.pub_key.pk_0)
+        .zip(&self.pub_key.pk_1)
+        .map(|((&e, &pk0), &pk1)| e + pk0 * pk1) // Encrypt: encoded + pk_0 * pk_1
+        .collect();
+    let encrypted_polynomial = Polynomial::new(encrypted_poly);
+    println!("Encrypted polynomial: {:?}", encrypted_polynomial);
+
+    // Step 4: Perform modular reduction using the prime modulus
+    let ciphertext = mod_reduce(&encrypted_polynomial, self.params.modulus);
+    println!("Ciphertext (after mod reduction): {:?}", ciphertext);
+
+    ciphertext
+}
+
+
     pub fn encrypt_integers(&self, plaintext: &[i64]) -> Polynomial {
         // Step 1: Encode the plaintext integers into a polynomial
         let scaling_factor = 10000000000000.0;  // Set a scaling factor for encoding
