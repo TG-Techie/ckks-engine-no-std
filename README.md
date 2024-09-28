@@ -1,6 +1,6 @@
 # ckks-engine
 
-`ckks-engine` is a Rust crate that provides an implementation of the CKKS (Cheon-Kim-Kim-Song) homomorphic encryption scheme. This enables encrypted computations on real numbers while preserving the privacy of the underlying data. With `ckks-engine`, you can perform a wide range of mathematical operations on encrypted data, including addition, subtraction, multiplication, and more.
+`ckks-engine` is a Rust crate that provides an implementation of the CKKS (Cheon-Kim-Kim-Song) homomorphic encryption scheme. This enables encrypted computations on real numbers and strings while preserving the privacy of the underlying data. With `ckks-engine`, you can perform a wide range of mathematical operations on encrypted data, including addition, subtraction, multiplication, and more.
 
 ## CKKS Scheme Overview
 
