@@ -102,39 +102,29 @@ impl CKKSEncryptor {
         println!("Ciphertext 1 before multiplication: {:?}", cipher1);
         println!("Ciphertext 2 before multiplication: {:?}", cipher2);
     
-        // The resulting polynomial can have a degree up to (degree of cipher1 + degree of cipher2)
-        let result_size = cipher1.coeffs.len() + cipher2.coeffs.len() - 1;
-        let mut result_coeffs = vec![0; result_size];
+        // Result size based on cipher1's length
+        let result_size = cipher1.coeffs.len() + cipher2.coeffs.len() - 1; // Adjust size for polynomial degree
+        let mut result_coeffs = vec![0.0; result_size]; // Use f64 for coefficients
     
         // Multiply coefficients
         for (i, &c1) in cipher1.coeffs.iter().enumerate() {
             for (j, &c2) in cipher2.coeffs.iter().enumerate() {
-                // Ensure we accumulate products in the correct index
-                result_coeffs[i + j] += (c1 as f64 * c2 as f64) / 10000000000000.0; // Scale and accumulate
+                // Ensure we stay within the bounds of result size
+                if i + j < result_size {
+                    result_coeffs[i + j] += (c1 as f64 * c2 as f64) / 10000000000000.0; // Scale and accumulate
+                }
             }
         }
     
-        // After accumulation, round the results
-        let rounded_coeffs: Vec<i64> = result_coeffs.iter()
-            .map(|&c| c.round() as i64)  // Round each coefficient
-            .collect();
-    
         // Create the resulting polynomial
-        let result = Polynomial::new(rounded_coeffs);
+        let result = Polynomial::new(result_coeffs.iter().map(|&x| x.round() as i64).collect());
         println!("Result after polynomial multiplication: {:?}", result);
     
-        // Apply modular reduction
+        // Modular reduction is still applied to the result
         let reduced_result = mod_reduce(&result, self.params.modulus);
         println!("Result after mod reduction: {:?}", reduced_result);
     
-        // Trim to only the coefficients we want, which should be [8, 8, 64]
-        let trimmed_coeffs: Vec<i64> = reduced_result.coeffs
-            .iter()
-            .take(3)  // Keep the first three coefficients
-            .cloned()
-            .collect();
-    
-        Polynomial::new(trimmed_coeffs)
+        reduced_result
     }
     
     
