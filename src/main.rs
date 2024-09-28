@@ -42,10 +42,12 @@ fn main() {
     // Example integer plaintext to be encrypted
     let plaintext_integers = vec![2, 4, 8]; 
     let plaintext_integers2 = vec![4,2,8];
+    let neg = vec![-1,2,-3];
 
     println!("\n=== Encrypting integers ===");
     let ciphertext_integers = encryptor.encrypt_integers(&plaintext_integers);
     let ciphertext_integers2 = encryptor.encrypt_integers(&plaintext_integers2);
+    let neg_cipher = encryptor.encrypt_integers(&neg);
 
 
     println!("\n=== Decrypting integers ===");
@@ -58,7 +60,10 @@ fn main() {
     let encrypted_sum = encryptor.homomorphic_add(&ciphertext1, &ciphertext2);
 
     let encrypted_int_sum = encryptor.homomorphic_add(&ciphertext_integers,&ciphertext_integers2);
+
+
     let encrypted_int_mult = encryptor.homomorphic_multiply(&ciphertext_integers,&ciphertext_integers2);
+    let neg_encrypted = encryptor.homomorphic_negate(&neg_cipher);
 
 
     println!("\n=== Homomorphic Subtraction ===");
@@ -75,6 +80,7 @@ fn main() {
     let decrypted_diff_int = decryptor.decrypt(&encrypted_diff_int, false);
 
     let decrypted_mult = decryptor.decrypt(&encrypted_int_mult,false);
+    let neg_decrypt = decryptor.decrypt(&neg_encrypted,false);
 
     println!("\nDecrypted sum: {:?}", decrypted_sum);
     println!("Decrypted difference: {:?}", decrypted_diff);
@@ -82,6 +88,6 @@ fn main() {
     println!("\nDecrypted difference: {:?}", decrypted_diff_int);
 
     println!("\nDecrypted multiply: {:?}", decrypted_mult);
-
+    println!("\nNegated values: {:?}",neg_decrypt);
 
 }

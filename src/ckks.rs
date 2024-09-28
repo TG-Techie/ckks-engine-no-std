@@ -102,18 +102,14 @@ impl CKKSEncryptor {
         println!("Ciphertext 1 before multiplication: {:?}", cipher1);
         println!("Ciphertext 2 before multiplication: {:?}", cipher2);
     
-        // Result size based on cipher1's length
-        let result_size = cipher1.coeffs.len() + cipher2.coeffs.len() - 1; // Adjust size for polynomial degree
+        // Result size is determined by the maximum degree of the polynomials
+        let result_size = cipher1.coeffs.len().max(cipher2.coeffs.len());
         let mut result_coeffs = vec![0.0; result_size]; // Use f64 for coefficients
     
-        // Multiply coefficients
-        for (i, &c1) in cipher1.coeffs.iter().enumerate() {
-            for (j, &c2) in cipher2.coeffs.iter().enumerate() {
-                // Ensure we stay within the bounds of result size
-                if i + j < result_size {
-                    result_coeffs[i + j] += (c1 as f64 * c2 as f64) / 10000000000000.0; // Scale and accumulate
-                }
-            }
+        // Multiply matching coefficients
+        let min_len = cipher1.coeffs.len().min(cipher2.coeffs.len());
+        for i in 0..min_len {
+            result_coeffs[i] = (cipher1.coeffs[i] as f64 * cipher2.coeffs[i] as f64) / 10000000000000.0; // Scale and store
         }
     
         // Create the resulting polynomial
@@ -124,6 +120,23 @@ impl CKKSEncryptor {
         let reduced_result = mod_reduce(&result, self.params.modulus);
         println!("Result after mod reduction: {:?}", reduced_result);
     
+        reduced_result
+    }    
+
+    pub fn homomorphic_negate(&self, cipher1: &Polynomial) -> Polynomial {
+        println!("Ciphertext before negation: {:?}", cipher1);
+        
+        // Negate the coefficients of the polynomial
+        let negated_coeffs: Vec<f64> = cipher1.coeffs.iter().map(|&c| -(c as f64)).collect();
+        
+        // Create a new Polynomial with negated coefficients
+        let negated_poly = Polynomial::new(negated_coeffs.iter().map(|&x| x.round() as i64).collect());
+        println!("Negated Polynomial before mod reduction: {:?}", negated_poly);
+        
+        // Apply modular reduction
+        let reduced_result = mod_reduce(&negated_poly, self.params.modulus);
+        println!("Negated Polynomial after mod reduction: {:?}", reduced_result);
+        
         reduced_result
     }
     
