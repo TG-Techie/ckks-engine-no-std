@@ -7,8 +7,14 @@ mod arithmetic;
 // use crate::polynomial::Polynomial;
 use ckks::{CKKSEncryptor, CKKSDecryptor, CkksParameters};
 use keygen::KeyGenerator;
+use log::{info}; //import  warn, error, debug, trace if necessary
+use std::env;
 
 fn main() {
+
+    env::set_var("RUST_LOG", "info");
+    env_logger::init();
+
 
     // Set parameters: degree of polynomial (e.g., N = 2048) and prime modulus (q)
     let params = CkksParameters::new(2048, 1000000000000007);
@@ -28,41 +34,41 @@ fn main() {
     let a = 10;
     let b = 4;
 
-    println!("\n=== Encrypting plaintext 1 ===");
+    info!("\n=== Encrypting plaintext 1 ===");
     let ciphertext1 = encryptor.encrypt_collection(&plaintext1);
     let single_v = encryptor.encrypt_value(a);
     let single_v2 = encryptor.encrypt_value(b);
     
-    println!("\n=== Encrypting plaintext 2 ===");
+    info!("\n=== Encrypting plaintext 2 ===");
     let ciphertext2 = encryptor.encrypt_collection(&plaintext2);
 
-    println!("\n=== Decrypting ciphertext 1 ===");
+    info!("\n=== Decrypting ciphertext 1 ===");
     let decrypted_plaintext1 = decryptor.decrypt(&ciphertext1);
-    println!("Decrypted plaintext 1: {:?}", decrypted_plaintext1);
+    info!("Decrypted plaintext 1: {:?}", decrypted_plaintext1);
 
-    println!("\n=== Decrypting ciphertext 2 ===");
+    info!("\n=== Decrypting ciphertext 2 ===");
     let decrypted_plaintext2 = decryptor.decrypt(&ciphertext2);
-    println!("Decrypted plaintext 2: {:?}", decrypted_plaintext2);
+    info!("Decrypted plaintext 2: {:?}", decrypted_plaintext2);
 
     // Example integer plaintext to be encrypted
     let plaintext_integers = vec![20000000, 40, 80]; 
     let plaintext_integers2 = vec![4,2,8];
     let neg = vec![-1,2,-3];
 
-    println!("\n=== Encrypting integers ===");
+    info!("\n=== Encrypting integers ===");
     let ciphertext_integers = encryptor.encrypt_collection(&plaintext_integers);
     let ciphertext_integers2 = encryptor.encrypt_collection(&plaintext_integers2);
     let neg_cipher = encryptor.encrypt_collection(&neg);
 
 
-    println!("\n=== Decrypting integers ===");
+    info!("\n=== Decrypting integers ===");
     let decrypted_integers = decryptor.decrypt(&ciphertext_integers);
-    let single_decrypted = decryptor.decrypt(&single_v);
+    // let single_decrypted = decryptor.decrypt(&single_v);
 
-    println!("Decrypted integers: {:?}", decrypted_integers);
+    info!("Decrypted integers: {:?}", decrypted_integers);
 
 
-    println!("\n=== Homomorphic Addition ===");
+    info!("\n=== Homomorphic Addition ===");
     let encrypted_sum = encryptor.homomorphic_add(&ciphertext1, &ciphertext2);
 
     let encrypted_int_sum = encryptor.homomorphic_add(&ciphertext_integers,&ciphertext_integers2);
@@ -77,19 +83,19 @@ fn main() {
     let single_neg = encryptor.homomorphic_negation(&single_v);
 
 
-    println!("\n=== Homomorphic Subtraction ===");
+    info!("\n=== Homomorphic Subtraction ===");
     let encrypted_diff = encryptor.homomorphic_subtract(&ciphertext1, &ciphertext2);
     let encrypted_diff_int = encryptor.homomorphic_subtract(&ciphertext_integers,&ciphertext_integers2);
     let single_diff = encryptor.homomorphic_subtract(&single_v,&single_v2);
     
 
 
-    println!("\n=== Decrypting Sum ===");
+    info!("\n=== Decrypting Sum ===");
     let decrypted_sum = decryptor.decrypt(&encrypted_sum);
     let decrypted_sum_int = decryptor.decrypt(&encrypted_int_sum);
     let single_dec_sum = decryptor.decrypt(&single_sum);
 
-    println!("\n=== Decrypting Difference ===");
+    info!("\n=== Decrypting Difference ===");
     let decrypted_diff = decryptor.decrypt(&encrypted_diff);
     let decrypted_diff_int = decryptor.decrypt(&encrypted_diff_int);
 
@@ -99,13 +105,13 @@ fn main() {
     let single_dec_neg = decryptor.decrypt(&single_neg);
     let single_dec_diff = decryptor.decrypt(&single_diff);
 
-    println!("\nDecrypted sum: {:?}", decrypted_sum);
-    println!("Decrypted difference: {:?}", decrypted_diff);
-    println!("\nDecrypted sum: {:?}", decrypted_sum_int);
-    println!("\nDecrypted difference: {:?}", decrypted_diff_int);
+    info!("\nDecrypted sum: {:?}", decrypted_sum);
+    info!("Decrypted difference: {:?}", decrypted_diff);
+    info!("\nDecrypted sum: {:?}", decrypted_sum_int);
+    info!("\nDecrypted difference: {:?}", decrypted_diff_int);
 
-    println!("\nDecrypted multiply: {:?}", decrypted_mult);
-    println!("\nNegated values: {:?}",neg_decrypt);
-    println!("\nSingle sum: {:?} {:?} {:?} {:?}",single_dec_sum,single_dec_mult,single_dec_neg,single_dec_diff);
+    info!("\nDecrypted multiply: {:?}", decrypted_mult);
+    info!("\nNegated values: {:?}",neg_decrypt);
+    info!("\nSingle sum: {:?} {:?} {:?} {:?}",single_dec_sum,single_dec_mult,single_dec_neg,single_dec_diff);
 
 }

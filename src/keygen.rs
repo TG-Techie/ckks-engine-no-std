@@ -33,7 +33,7 @@ impl KeyGenerator {
         // Generate a random polynomial for public key generation
         let random_poly: Vec<i64> = (0..10).map(|_| rng.gen_range(1..100)).collect();
         // Generate noise polynomial for added security
-        let noise_poly: Vec<i64> = (0..10).map(|_| rng.gen_range(-10..10)).collect();
+        // let noise_poly: Vec<i64> = (0..10).map(|_| rng.gen_range(-10..10)).collect();
 
         // Create public key polynomials
         let pk_0: Vec<i64> = sec_key_poly.iter().zip(&random_poly)
