@@ -4,114 +4,152 @@ mod polynomial;
 mod utils;
 mod arithmetic;
 
-// use crate::polynomial::Polynomial;
 use ckks::{CKKSEncryptor, CKKSDecryptor, CkksParameters};
 use keygen::KeyGenerator;
-use log::{info}; //import  warn, error, debug, trace if necessary
+use log::info;
 use std::env;
 
 fn main() {
-
+    // Set up logging and environment
     env::set_var("RUST_LOG", "info");
     env_logger::init();
 
-
-    // Set parameters: degree of polynomial (e.g., N = 2048) and prime modulus (q)
+    // Set CKKS parameters: degree of polynomial (N = 2048) and prime modulus (q)
     let params = CkksParameters::new(2048, 1000000000000007);
 
     // Key generation
     let keygen = KeyGenerator::new();
-    // let (public_key, secret_key, _) = keygen.generate_keys();
     let (public_key, secret_key) = keygen.generate_keys();
 
-    // Initialize CKKS encryptor and decryptor with parameters
+    // Initialize CKKS encryptor and decryptor
     let encryptor = CKKSEncryptor::new(public_key.clone(), params.clone());
     let decryptor = CKKSDecryptor::new(secret_key.clone(), params.clone());
 
-    // Plaintext to be encrypted
-    let plaintext1 = [100, 202, 304]; 
-    let plaintext2 = [4.32, 5.26, 3.78]; 
-    let a = 10;
-    let b = 4;
+    // Declare two integer arrays and two float arrays
+    let int_array1 = [100, 202, 304];
+    let int_array2 = [400, 150, 210];
 
-    info!("\n=== Encrypting plaintext 1 ===");
-    let ciphertext1 = encryptor.encrypt_collection(&plaintext1);
-    let single_v = encryptor.encrypt_value(a);
-    let single_v2 = encryptor.encrypt_value(b);
-    
-    info!("\n=== Encrypting plaintext 2 ===");
-    let ciphertext2 = encryptor.encrypt_collection(&plaintext2);
+    let float_array1 = [4.32, 5.26, 3.78];
+    let float_array2 = [2.11, 6.55, 1.99];
 
-    info!("\n=== Decrypting ciphertext 1 ===");
-    let decrypted_plaintext1 = decryptor.decrypt(&ciphertext1);
-    info!("Decrypted plaintext 1: {:?}", decrypted_plaintext1);
+    // Declare scalar values
+    let scalar_int1 = 10;
+    let scalar_int2 = 20;
 
-    info!("\n=== Decrypting ciphertext 2 ===");
-    let decrypted_plaintext2 = decryptor.decrypt(&ciphertext2);
-    info!("Decrypted plaintext 2: {:?}", decrypted_plaintext2);
+    let scalar_float1 = 4.56;
+    let scalar_float2 = 7.89;
 
-    // Example integer plaintext to be encrypted
-    let plaintext_integers = vec![20000000, 40, 80]; 
-    let plaintext_integers2 = vec![4,2,8];
-    let neg = vec![-1,2,-3];
+    // Encrypt integer arrays and float arrays
+    info!("\n=== Encrypting Integer and Float Arrays ===");
+    let encrypted_int_array1 = encryptor.encrypt_collection(&int_array1);
+    let encrypted_int_array2 = encryptor.encrypt_collection(&int_array2);
 
-    info!("\n=== Encrypting integers ===");
-    let ciphertext_integers = encryptor.encrypt_collection(&plaintext_integers);
-    let ciphertext_integers2 = encryptor.encrypt_collection(&plaintext_integers2);
-    let neg_cipher = encryptor.encrypt_collection(&neg);
+    let encrypted_float_array1 = encryptor.encrypt_collection(&float_array1);
+    let encrypted_float_array2 = encryptor.encrypt_collection(&float_array2);
 
+    // Encrypt scalar integers and scalar floats
+    info!("\n=== Encrypting Scalar Integers and Floats ===");
+    let encrypted_scalar_int1 = encryptor.encrypt_value(scalar_int1);
+    let encrypted_scalar_int2 = encryptor.encrypt_value(scalar_int2);
 
-    info!("\n=== Decrypting integers ===");
-    let decrypted_integers = decryptor.decrypt(&ciphertext_integers);
-    // let single_decrypted = decryptor.decrypt(&single_v);
+    let encrypted_scalar_float1 = encryptor.encrypt_value(scalar_float1);
+    let encrypted_scalar_float2 = encryptor.encrypt_value(scalar_float2);
 
-    info!("Decrypted integers: {:?}", decrypted_integers);
+    // Homomorphic Operations on Arrays
+    info!("\n=== Homomorphic Operations on Arrays ===");
 
+    // Integer Array vs Integer Array
+    let int_array_add = encryptor.homomorphic_add(&encrypted_int_array1, &encrypted_int_array2);
+    let int_array_subtract = encryptor.homomorphic_subtract(&encrypted_int_array1, &encrypted_int_array2);
+    let int_array_multiply = encryptor.homomorphic_multiply(&encrypted_int_array1, &encrypted_int_array2);
+    let int_array_negate = encryptor.homomorphic_negation(&encrypted_int_array1);
 
-    info!("\n=== Homomorphic Addition ===");
-    let encrypted_sum = encryptor.homomorphic_add(&ciphertext1, &ciphertext2);
+    let decrypted_int_array_add = decryptor.decrypt(&int_array_add);
+    let decrypted_int_array_subtract = decryptor.decrypt(&int_array_subtract);
+    let decrypted_int_array_multiply = decryptor.decrypt(&int_array_multiply);
+    let decrypted_int_array_negate = decryptor.decrypt(&int_array_negate);
 
-    let encrypted_int_sum = encryptor.homomorphic_add(&ciphertext_integers,&ciphertext_integers2);
-    let single_sum = encryptor.homomorphic_add(&single_v,&single_v2);
+    info!("Addition (int array + int array): {:?}", decrypted_int_array_add);
+    info!("Subtraction (int array - int array): {:?}", decrypted_int_array_subtract);
+    info!("Multiplication (int array * int array): {:?}", decrypted_int_array_multiply);
+    info!("Negation (int array): {:?}", decrypted_int_array_negate);
 
+    // Float Array vs Float Array
+    let float_array_add = encryptor.homomorphic_add(&encrypted_float_array1, &encrypted_float_array2);
+    let float_array_subtract = encryptor.homomorphic_subtract(&encrypted_float_array1, &encrypted_float_array2);
+    let float_array_multiply = encryptor.homomorphic_multiply(&encrypted_float_array1, &encrypted_float_array2);
+    let float_array_negate = encryptor.homomorphic_negation(&encrypted_float_array1);
 
+    let decrypted_float_array_add = decryptor.decrypt(&float_array_add);
+    let decrypted_float_array_subtract = decryptor.decrypt(&float_array_subtract);
+    let decrypted_float_array_multiply = decryptor.decrypt(&float_array_multiply);
+    let decrypted_float_array_negate = decryptor.decrypt(&float_array_negate);
 
+    info!("Addition (float array + float array): {:?}", decrypted_float_array_add);
+    info!("Subtraction (float array - float array): {:?}", decrypted_float_array_subtract);
+    info!("Multiplication (float array * float array): {:?}", decrypted_float_array_multiply);
+    info!("Negation (float array): {:?}", decrypted_float_array_negate);
 
-    let encrypted_int_mult = encryptor.homomorphic_multiply(&ciphertext_integers,&ciphertext_integers2);
-    let single_int_mult = encryptor.homomorphic_multiply(&single_v,&single_v2);
-    let neg_encrypted = encryptor.homomorphic_negation(&neg_cipher);
-    let single_neg = encryptor.homomorphic_negation(&single_v);
+    // Integer Array vs Float Array
+    let int_float_array_add = encryptor.homomorphic_add(&encrypted_int_array1, &encrypted_float_array1);
+    let int_float_array_subtract = encryptor.homomorphic_subtract(&encrypted_int_array1, &encrypted_float_array1);
+    let int_float_array_multiply = encryptor.homomorphic_multiply(&encrypted_int_array1, &encrypted_float_array1);
 
+    let decrypted_int_float_array_add = decryptor.decrypt(&int_float_array_add);
+    let decrypted_int_float_array_subtract = decryptor.decrypt(&int_float_array_subtract);
+    let decrypted_int_float_array_multiply = decryptor.decrypt(&int_float_array_multiply);
 
-    info!("\n=== Homomorphic Subtraction ===");
-    let encrypted_diff = encryptor.homomorphic_subtract(&ciphertext1, &ciphertext2);
-    let encrypted_diff_int = encryptor.homomorphic_subtract(&ciphertext_integers,&ciphertext_integers2);
-    let single_diff = encryptor.homomorphic_subtract(&single_v,&single_v2);
-    
+    info!("Addition (int array + float array): {:?}", decrypted_int_float_array_add);
+    info!("Subtraction (int array - float array): {:?}", decrypted_int_float_array_subtract);
+    info!("Multiplication (int array * float array): {:?}", decrypted_int_float_array_multiply);
 
+    // Homomorphic Operations on Scalars
+    info!("\n=== Homomorphic Operations on Scalars ===");
 
-    info!("\n=== Decrypting Sum ===");
-    let decrypted_sum = decryptor.decrypt(&encrypted_sum);
-    let decrypted_sum_int = decryptor.decrypt(&encrypted_int_sum);
-    let single_dec_sum = decryptor.decrypt(&single_sum);
+    // Integer vs Integer
+    let scalar_int_add = encryptor.homomorphic_add(&encrypted_scalar_int1, &encrypted_scalar_int2);
+    let scalar_int_subtract = encryptor.homomorphic_subtract(&encrypted_scalar_int1, &encrypted_scalar_int2);
+    let scalar_int_multiply = encryptor.homomorphic_multiply(&encrypted_scalar_int1, &encrypted_scalar_int2);
+    let scalar_int_negate = encryptor.homomorphic_negation(&encrypted_scalar_int1);
 
-    info!("\n=== Decrypting Difference ===");
-    let decrypted_diff = decryptor.decrypt(&encrypted_diff);
-    let decrypted_diff_int = decryptor.decrypt(&encrypted_diff_int);
+    let decrypted_scalar_int_add = decryptor.decrypt(&scalar_int_add);
+    let decrypted_scalar_int_subtract = decryptor.decrypt(&scalar_int_subtract);
+    let decrypted_scalar_int_multiply = decryptor.decrypt(&scalar_int_multiply);
+    let decrypted_scalar_int_negate = decryptor.decrypt(&scalar_int_negate);
 
-    let decrypted_mult = decryptor.decrypt(&encrypted_int_mult);
-    let neg_decrypt = decryptor.decrypt(&neg_encrypted);
-    let single_dec_mult = decryptor.decrypt(&single_int_mult);
-    let single_dec_neg = decryptor.decrypt(&single_neg);
-    let single_dec_diff = decryptor.decrypt(&single_diff);
+    info!("Addition (int + int): {:?}", decrypted_scalar_int_add);
+    info!("Subtraction (int - int): {:?}", decrypted_scalar_int_subtract);
+    info!("Multiplication (int * int): {:?}", decrypted_scalar_int_multiply);
+    info!("Negation (int): {:?}", decrypted_scalar_int_negate);
 
-    info!("\nDecrypted sum: {:?}", decrypted_sum);
-    info!("Decrypted difference: {:?}", decrypted_diff);
-    info!("\nDecrypted sum: {:?}", decrypted_sum_int);
-    info!("\nDecrypted difference: {:?}", decrypted_diff_int);
+    // Float vs Float
+    let scalar_float_add = encryptor.homomorphic_add(&encrypted_scalar_float1, &encrypted_scalar_float2);
+    let scalar_float_subtract = encryptor.homomorphic_subtract(&encrypted_scalar_float1, &encrypted_scalar_float2);
+    let scalar_float_multiply = encryptor.homomorphic_multiply(&encrypted_scalar_float1, &encrypted_scalar_float2);
+    let scalar_float_negate = encryptor.homomorphic_negation(&encrypted_scalar_float1);
 
-    info!("\nDecrypted multiply: {:?}", decrypted_mult);
-    info!("\nNegated values: {:?}",neg_decrypt);
-    info!("\nSingle sum: {:?} {:?} {:?} {:?}",single_dec_sum,single_dec_mult,single_dec_neg,single_dec_diff);
+    let decrypted_scalar_float_add = decryptor.decrypt(&scalar_float_add);
+    let decrypted_scalar_float_subtract = decryptor.decrypt(&scalar_float_subtract);
+    let decrypted_scalar_float_multiply = decryptor.decrypt(&scalar_float_multiply);
+    let decrypted_scalar_float_negate = decryptor.decrypt(&scalar_float_negate);
 
+    info!("Addition (float + float): {:?}", decrypted_scalar_float_add);
+    info!("Subtraction (float - float): {:?}", decrypted_scalar_float_subtract);
+    info!("Multiplication (float * float): {:?}", decrypted_scalar_float_multiply);
+    info!("Negation (float): {:?}", decrypted_scalar_float_negate);
+
+    // Integer vs Float
+    let scalar_int_float_add = encryptor.homomorphic_add(&encrypted_scalar_int1, &encrypted_scalar_float1);
+    let scalar_int_float_subtract = encryptor.homomorphic_subtract(&encrypted_scalar_int1, &encrypted_scalar_float1);
+    let scalar_int_float_multiply = encryptor.homomorphic_multiply(&encrypted_scalar_int1, &encrypted_scalar_float1);
+
+    let decrypted_scalar_int_float_add = decryptor.decrypt(&scalar_int_float_add);
+    let decrypted_scalar_int_float_subtract = decryptor.decrypt(&scalar_int_float_subtract);
+    let decrypted_scalar_int_float_multiply = decryptor.decrypt(&scalar_int_float_multiply);
+
+    info!("Addition (int + float): {:?}", decrypted_scalar_int_float_add);
+    info!("Subtraction (int - float): {:?}", decrypted_scalar_int_float_subtract);
+    info!("Multiplication (int * float): {:?}", decrypted_scalar_int_float_multiply);
+
+    info!("\n=== All operations completed ===");
 }

@@ -6,9 +6,6 @@ impl CKKSEncryptor {
 
     // Function to perform homomorphic addition on two encrypted polynomials (ciphertexts)
     pub fn homomorphic_add(&self, cipher1: &Polynomial, cipher2: &Polynomial) -> Polynomial {
-        // Print ciphertexts before addition for debugging
-        info!("Ciphertext 1 before addition: {:?}", cipher1);
-        info!("Ciphertext 2 before addition: {:?}", cipher2);
 
         // Add the two polynomials (ciphertexts). Assuming the ciphertexts have the same scaling factor
         let result = cipher1.add(cipher2);
@@ -24,9 +21,6 @@ impl CKKSEncryptor {
 
     // Function to perform homomorphic subtraction on two encrypted polynomials (ciphertexts)
     pub fn homomorphic_subtract(&self, cipher1: &Polynomial, cipher2: &Polynomial) -> Polynomial {
-        // Print ciphertexts before subtraction for debugging
-        info!("Ciphertext 1 before subtraction: {:?}", cipher1);
-        info!("Ciphertext 2 before subtraction: {:?}", cipher2);
 
         // Subtract the second polynomial (cipher2) from the first (cipher1)
         let result = cipher1.subtract(cipher2);
@@ -42,9 +36,6 @@ impl CKKSEncryptor {
 
     // Function to perform homomorphic multiplication on two encrypted polynomials (ciphertexts)
     pub fn homomorphic_multiply(&self, cipher1: &Polynomial, cipher2: &Polynomial) -> Polynomial {
-        // Print ciphertexts before multiplication for debugging
-        info!("Ciphertext 1 before multiplication: {:?}", cipher1);
-        info!("Ciphertext 2 before multiplication: {:?}", cipher2);
     
         // Multiply the two polynomials (ciphertexts). The result size is determined by the degree of the polynomials
         let result = cipher1.multiply(cipher2);
@@ -60,8 +51,6 @@ impl CKKSEncryptor {
 
     // Function to perform homomorphic negation on an encrypted polynomial (ciphertext)
     pub fn homomorphic_negation(&self, cipher1: &Polynomial) -> Polynomial {
-        // Print the ciphertext before negation for debugging
-        info!("Ciphertext before negation: {:?}", cipher1);
         
         // Negate the coefficients of the polynomial (ciphertext)
         let negated_poly = cipher1.negation();

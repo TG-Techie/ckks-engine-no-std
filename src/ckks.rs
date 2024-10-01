@@ -53,7 +53,6 @@ impl CKKSEncryptor {
 
         // Step 4: Perform modular reduction using the prime modulus
         let ciphertext = mod_reduce(&encrypted_polynomial, self.params.modulus);
-        info!("Ciphertext (after mod reduction): {:?}", ciphertext);
 
         ciphertext  // Return ciphertext
     }
@@ -82,7 +81,6 @@ impl CKKSEncryptor {
 
         // Step 4: Perform modular reduction using the prime modulus
         let ciphertext = mod_reduce(&encrypted_polynomial, self.params.modulus);
-        info!("Ciphertext (after mod reduction): {:?}", ciphertext);
 
         ciphertext  // Return ciphertext
     }
@@ -107,7 +105,6 @@ impl CKKSDecryptor {
 
         // Step 1: Perform modular reduction to keep coefficients manageable
         let reduced_poly = mod_reduce(ciphertext, self.params.modulus);
-        info!("Decrypted polynomial (after mod reduction): {:?}", reduced_poly);
 
         // Step 2: Apply the secret key to reverse the public key's effect
         let decrypted_poly: Vec<i64> = reduced_poly.coeffs.iter()
