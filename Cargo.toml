@@ -1,5 +1,5 @@
 [package]
-name = "ckks_homomorphic_encryption"
+name = "ckks-engine"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,3 +7,5 @@ edition = "2021"
 ff = "0.9"  # Finite field arithmetic
 rand = "0.8"  # Random number generation
 num-bigint = "0.4"  # For large integer support (could be useful for mod operations)
+log = "0.4"
+env_logger = "0.10"
