@@ -27,7 +27,7 @@ The architecture is modular, ensuring scalability and separation of concerns. Be
 ### Module-Level Structure
 
 - **`lib.rs`**:
-    The `lib.rs` file serves as the entry point for the `ckks-engine` crate. It declares and re-exports key modules, making it easier to access the core components of the crate. Here's a breakdown of its role:
+    The `lib.rs` file serves as the entry point for the `ckks-engine` crate. It declares and re-exports key modules, making it easier to access the core components of the crate.
 
 - **`ckks.rs`**:
   - Contains the core CKKS encryption and decryption functions.
