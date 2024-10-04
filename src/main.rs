@@ -1,15 +1,10 @@
-mod ckks;
-mod keygen;
-mod polynomial;
-mod utils;
-mod arithmetic;
 
-use ckks::{CKKSEncryptor, CKKSDecryptor, CkksParameters};
-use keygen::KeyGenerator;
+use ckks_engine::ckks::{CKKSEncryptor, CKKSDecryptor, CkksParameters};
+use ckks_engine::keygen::KeyGenerator;
 use log::info;
 use std::env;
 
-fn main() {
+fn run_ckks_operations() {
     // Set up logging and environment
     env::set_var("RUST_LOG", "info");
     env_logger::init();
