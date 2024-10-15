@@ -27,14 +27,12 @@ impl KeyGenerator {
         let mut rng = rand::thread_rng();  // Create a random number generator
         
         // Generate secret key (random polynomial of size 10)
-        let sec_key_poly: Vec<i64> = (0..10).map(|_| rng.gen_range(1..100)).collect();
+        let sec_key_poly: Vec<i64> = (0..2048).map(|_| rng.gen_range(1..100)).collect();
         let sec_key = SecretKey { poly: sec_key_poly.clone() };  // Create secret key using the generated polynomial
 
         // Generate a random polynomial for public key generation
-        let random_poly: Vec<i64> = (0..10).map(|_| rng.gen_range(1..100)).collect();
-        // Generate noise polynomial for added security
-        // let noise_poly: Vec<i64> = (0..10).map(|_| rng.gen_range(-10..10)).collect();
-
+        let random_poly: Vec<i64> = (0..2048).map(|_| rng.gen_range(1..100)).collect();
+       
         // Create public key polynomials
         let pk_0: Vec<i64> = sec_key_poly.iter().zip(&random_poly)
             .map(|(&sk, &r)| -sk * r + rng.gen_range(-10..10))  // Compute pk_0 as -sk * random + noise
@@ -46,4 +44,9 @@ impl KeyGenerator {
 
         (pub_key, sec_key)  // Return the generated public and secret keys
     }
+
+    
 }
+
+
+
