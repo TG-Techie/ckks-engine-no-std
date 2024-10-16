@@ -63,4 +63,26 @@ impl CKKSEncryptor {
         // Return the reduced result as the final homomorphic negation result
         reduced_result
     }
+
+    // Function to perform homomorphic ceil on encrypted polynomials (ciphertexts)
+    pub fn homomorphic_ceil(&self, cipher: &Polynomial) -> Polynomial {
+        // This function will operate on encrypted coefficients
+        let ceil_poly: Vec<i64> = cipher.coeffs.iter().map(|&c| {
+            let scaled_value = (c as f64) / 1e7; // scale down
+            let ceil_value = scaled_value.ceil() as i64; // apply ceil
+            (ceil_value as i64) * (1e7 as i64) // scale up back after ceil
+        }).collect();
+
+        // Return the new polynomial with ceil applied on encrypted data
+        let ceil_polynomial = Polynomial::new(ceil_poly);
+        info!("Polynomial after homomorphic ceil: {:?}", ceil_polynomial);
+
+        // Perform modular reduction to ensure the result fits within the modulus
+        let reduced_result = mod_reduce(&ceil_polynomial, self.params.modulus);
+        info!("Result after mod reduction (ceil): {:?}", reduced_result);
+
+        // Return the reduced result
+        reduced_result
+    }
+
 }
