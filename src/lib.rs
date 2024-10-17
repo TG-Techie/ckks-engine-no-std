@@ -60,7 +60,7 @@ pub fn run_ckks_operations() {
     let encrypted_scalar_float1 = encryptor.encrypt_value(scalar_float1);
     let encrypted_scalar_float2 = encryptor.encrypt_value(scalar_float2);
 
-    // Homomorphic Operations on Arrays
+    Homomorphic Operations on Arrays
     info!("\n=== Homomorphic Operations on Arrays ===");
 
     // Integer Array vs Integer Array
@@ -186,7 +186,49 @@ pub fn run_ckks_operations() {
     info!("\n========================================");
     info!("Decrypted ceil value for scalar float 2: {:?}", decrypted_ceil_scalar_float2);
 
+    info!("\n=== Homomorphic Round and Truncate Operations ===");
 
+    // Perform round operation on the encrypted float array1
+    let encrypted_round_float_array1 = encryptor.homomorphic_round(&encrypted_float_array1);
+    let decrypted_round_float_array1 = decryptor.decrypt(&encrypted_round_float_array1);
+    info!("Decrypted round values for float array 1: {:?}", decrypted_round_float_array1);
+
+    // Perform truncate operation on the encrypted float array1
+    let encrypted_truncate_float_array1 = encryptor.homomorphic_truncate(&encrypted_float_array1);
+    let decrypted_truncate_float_array1 = decryptor.decrypt(&encrypted_truncate_float_array1);
+    info!("Decrypted truncate values for float array 1: {:?}", decrypted_truncate_float_array1);
+
+    // Similarly, perform round and truncate on float array2 and scalar floats
+    // Round on float array2
+    let encrypted_round_float_array2 = encryptor.homomorphic_round(&encrypted_float_array2);
+    let decrypted_round_float_array2 = decryptor.decrypt(&encrypted_round_float_array2);
+    info!("Decrypted round values for float array 2: {:?}", decrypted_round_float_array2);
+
+    // Truncate on float array2
+    let encrypted_truncate_float_array2 = encryptor.homomorphic_truncate(&encrypted_float_array2);
+    let decrypted_truncate_float_array2 = decryptor.decrypt(&encrypted_truncate_float_array2);
+    info!("Decrypted truncate values for float array 2: {:?}", decrypted_truncate_float_array2);
+
+    // Round on scalar floats
+    let encrypted_round_scalar_float1 = encryptor.homomorphic_round(&encrypted_scalar_float1);
+    let decrypted_round_scalar_float1 = decryptor.decrypt(&encrypted_round_scalar_float1);
+    info!("Decrypted round value for scalar float 1: {:?}", decrypted_round_scalar_float1);
+
+    let encrypted_round_scalar_float2 = encryptor.homomorphic_round(&encrypted_scalar_float2);
+    let decrypted_round_scalar_float2 = decryptor.decrypt(&encrypted_round_scalar_float2);
+    info!("Decrypted round value for scalar float 2: {:?}", decrypted_round_scalar_float2);
+
+    // Truncate on scalar floats
+    let encrypted_truncate_scalar_float1 = encryptor.homomorphic_truncate(&encrypted_scalar_float1);
+    let decrypted_truncate_scalar_float1 = decryptor.decrypt(&encrypted_truncate_scalar_float1);
+    info!("Decrypted truncate value for scalar float 1: {:?}", decrypted_truncate_scalar_float1);
+
+    let encrypted_truncate_scalar_float2 = encryptor.homomorphic_truncate(&encrypted_scalar_float2);
+    let decrypted_truncate_scalar_float2 = decryptor.decrypt(&encrypted_truncate_scalar_float2);
+    info!("Decrypted truncate value for scalar float 2: {:?}", decrypted_truncate_scalar_float2);
+
+
+    info!("\n=== All operations completed ===");
 
     info!("\n=== All operations completed ===");
 }
