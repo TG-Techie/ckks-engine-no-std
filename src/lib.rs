@@ -157,63 +157,51 @@ pub fn run_ckks_operations() {
     info!("Multiplication (int * float): {:?}", decrypted_scalar_int_float_multiply);
 
     // Homomorphic ceil operation
-    // Encrypt floating-point values
-    info!("\n========================================");
-    // Homomorphic ceil operation on encrypted values
     info!("\n=== Homomorphic Ceil Operations ===");
 
-    // Perform ceil operation on the encrypted float array1
+    // Perform ceil operation on the float array1
     let encrypted_ceil_float_array1 = encryptor.homomorphic_ceil(&encrypted_float_array1);
     let decrypted_ceil_float_array1 = decryptor.decrypt(&encrypted_ceil_float_array1);
-    info!("\n========================================");
     info!("Decrypted ceil values for float array 1: {:?}", decrypted_ceil_float_array1);
 
-    // Perform ceil operation on the encrypted float array2
+    // Perform ceil operation on the float array2
     let encrypted_ceil_float_array2 = encryptor.homomorphic_ceil(&encrypted_float_array2);
     let decrypted_ceil_float_array2 = decryptor.decrypt(&encrypted_ceil_float_array2);
-    info!("\n========================================");
     info!("Decrypted ceil values for float array 2: {:?}", decrypted_ceil_float_array2);
 
-    // Perform ceil operation on the encrypted scalar float1
+    // Perform ceil operation on the scalar float1
     let encrypted_ceil_scalar_float1 = encryptor.homomorphic_ceil(&encrypted_scalar_float1);
     let decrypted_ceil_scalar_float1 = decryptor.decrypt(&encrypted_ceil_scalar_float1);
-    info!("\n========================================");
     info!("Decrypted ceil value for scalar float 1: {:?}", decrypted_ceil_scalar_float1);
 
-    // Perform ceil operation on the encrypted scalar float2
+    // Perform ceil operation on the scalar float2
     let encrypted_ceil_scalar_float2 = encryptor.homomorphic_ceil(&encrypted_scalar_float2);
     let decrypted_ceil_scalar_float2 = decryptor.decrypt(&encrypted_ceil_scalar_float2);
-    info!("\n========================================");
     info!("Decrypted ceil value for scalar float 2: {:?}", decrypted_ceil_scalar_float2);
 
-    // Homomorphic floor operation on encrypted values
-    info!("\n========================================");
+    // Homomorphic floor operation
+
     info!("\n=== Homomorphic Floor Operations ===");
 
-    // Perform floor operation on the encrypted float array1
+    // Perform floor operation on the float array1
     let encrypted_floor_float_array1 = encryptor.homomorphic_floor(&encrypted_float_array1);
     let decrypted_floor_float_array1 = decryptor.decrypt(&encrypted_floor_float_array1);
-    info!("\n========================================");
     info!("Decrypted floor values for float array 1: {:?}", decrypted_floor_float_array1);
 
-    // Perform floor operation on the encrypted float array2
+    // Perform floor operation on the float array2
     let encrypted_floor_float_array2 = encryptor.homomorphic_floor(&encrypted_float_array2);
     let decrypted_floor_float_array2 = decryptor.decrypt(&encrypted_floor_float_array2);
-    info!("\n========================================");
     info!("Decrypted floor values for float array 2: {:?}", decrypted_floor_float_array2);
 
-    // Perform floor operation on the encrypted scalar float1
+    // Perform floor operation on the scalar float1
     let encrypted_floor_scalar_float1 = encryptor.homomorphic_floor(&encrypted_scalar_float1);
     let decrypted_floor_scalar_float1 = decryptor.decrypt(&encrypted_floor_scalar_float1);
-    info!("\n========================================");
     info!("Decrypted floor value for scalar float 1: {:?}", decrypted_floor_scalar_float1);
 
-    // Perform floor operation on the encrypted scalar float2
+    // Perform floor operation on the scalar float2
     let encrypted_floor_scalar_float2 = encryptor.homomorphic_floor(&encrypted_scalar_float2);
     let decrypted_floor_scalar_float2 = decryptor.decrypt(&encrypted_floor_scalar_float2);
-    info!("\n========================================");
     info!("Decrypted floor value for scalar float 2: {:?}", decrypted_floor_scalar_float2);
-
 
     info!("\n=== All operations completed ===");
 }
