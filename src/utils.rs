@@ -77,3 +77,56 @@ pub fn mod_reduce(poly: &Polynomial, modulus: i64) -> Polynomial {
     info!("Performing modular reduction on polynomial {:?}. Result after mod reduction: {:?}", poly.coeffs, reduced);
     Polynomial::new(reduced)  // Return a new polynomial with reduced coefficients
 }
+
+// Modular reduction using the prime modulus q
+pub fn mod_reduce_string(poly: &Polynomial, modulus: i64) -> Polynomial {
+    // Reduce each coefficient of the polynomial modulo the given modulus
+    let reduced: Vec<i64> = poly.coeffs.iter().map(|&coeff| coeff % modulus).collect();
+    
+    // Log the before and after state of the coefficients
+    info!("Performing modular reduction on polynomial {:?}.", poly.coeffs);
+    info!("Result after mod reduction: {:?}", reduced);
+
+    // Filter out zero coefficients if necessary (optional)
+    let filtered: Vec<i64> = reduced.into_iter().filter(|&coeff| coeff != 0).collect();
+    info!("Filtered coefficients (non-zero): {:?}", filtered);
+
+    Polynomial::new(filtered)  // Return a new polynomial with reduced coefficients
+}
+
+
+pub fn encode_string(plaintext: &str, scaling_factor: f64) -> Polynomial {
+    if scaling_factor <= 0.0 {
+        panic!("Scaling factor must be positive");
+    }
+    
+    // Convert each character to its ASCII/Unicode value and scale
+    let coeffs: Vec<i64> = plaintext.chars()
+        .map(|c| (c as i64 * scaling_factor as i64))  // Scale and collect coefficients
+        .collect();
+    
+    info!("Encoded string '{}' as polynomial coefficients: {:?}", plaintext, coeffs);
+    
+    Polynomial::new(coeffs)  // Return the polynomial with the encoded coefficients
+}
+
+
+// Decode polynomial back to a string
+pub fn decode_string(ciphertext: &Polynomial, scaling_factor: f64) -> String {
+    if scaling_factor <= 0.0 {
+        panic!("Scaling factor must be positive");
+    }
+    
+    // Reverse the scaling factor and convert each coefficient back to its character representation
+    let decoded_chars: String = ciphertext.coeffs.iter()
+        .map(|&c| {
+            let value = c as f64 / scaling_factor;
+            // Convert the value back to a character
+            value.round() as u8 as char
+        })
+        .collect();
+    
+    info!("Decoded polynomial {:?} back to string: '{}'", ciphertext.coeffs, decoded_chars);
+    
+    decoded_chars  // Return the decoded string
+}

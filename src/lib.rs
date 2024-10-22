@@ -6,6 +6,7 @@ pub mod polynomial;
 pub mod keygen;
 pub mod utils;
 pub mod arithmetic;
+pub mod stringfn;
 
 use std::env;
 use log::info;
@@ -14,11 +15,13 @@ pub use ckks::{CKKSEncryptor, CKKSDecryptor, CkksParameters};
 pub use polynomial::Polynomial;
 pub use keygen::{PublicKey, SecretKey, KeyGenerator};
 
-pub fn run_ckks_operations() {
+pub fn init_logging() {
     // Set up logging and environment
-    env::set_var("RUST_LOG", "info");
+    std::env::set_var("RUST_LOG", "info");
     env_logger::init();
+}
 
+pub fn run_ckks_operations() {
     // Set CKKS parameters: degree of polynomial (N = 2048) and prime modulus (q)
     let params = CkksParameters::new(2048, 1000000000000007);
 
@@ -249,3 +252,50 @@ pub fn run_ckks_operations() {
     info!("\n=== All operations completed ===");
 
 }
+
+pub fn run_ckks_string_operations() {
+    // Set CKKS parameters: degree of polynomial (N = 2048) and prime modulus (q)
+    let params = CkksParameters::new(2048, 1000000000000007);
+
+    // Key generation
+    let keygen = KeyGenerator::new();
+    let (public_key, secret_key) = keygen.generate_keys();
+
+    // Initialize CKKS encryptor and decryptor
+    let encryptor = CKKSEncryptor::new(public_key.clone(), params.clone());
+    let decryptor = CKKSDecryptor::new(secret_key.clone(), params.clone());
+
+    // Define some strings to encrypt and decrypt
+    let string1 = "Hello, CKKS. This is the string encryption buddy";
+    let string2 = "Homomorphic Encryption";
+
+    // Encrypt the strings
+    info!("\n=== Encrypting Strings ===");
+    let encrypted_string1 = encryptor.encrypt_string(string1);
+    let encrypted_string2 = encryptor.encrypt_string(string2);
+
+    info!("Encrypted String 1: {:?}", encrypted_string1);
+    info!("Encrypted String 2: {:?}", encrypted_string2);
+
+    // Test and log the homomorphic lengths of the encrypted strings
+    let length1 = encryptor.homomorphic_length(&encrypted_string1);
+    let length2 = encryptor.homomorphic_length(&encrypted_string2);
+
+    info!("Homomorphic length of Encrypted String 1: {}", length1);
+    info!("Homomorphic length of Encrypted String 2: {}", length2);
+
+    // Decrypt the strings
+    info!("\n=== Decrypting Strings ===");
+    let decrypted_string1 = decryptor.decrypt_string(&encrypted_string1);
+    let decrypted_string2 = decryptor.decrypt_string(&encrypted_string2);
+
+    info!("Decrypted String 1: {:?}", decrypted_string1);
+    info!("Decrypted String 2: {:?}", decrypted_string2);
+
+    // Verify that the decrypted strings match the originals
+    assert_eq!(string1, decrypted_string1);
+    assert_eq!(string2, decrypted_string2);
+
+    info!("\n=== String encryption, decryption, and length operations completed ===");
+}
+

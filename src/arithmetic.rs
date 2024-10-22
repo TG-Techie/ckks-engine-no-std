@@ -2,6 +2,7 @@ use crate::ckks::CKKSEncryptor;
 use crate::polynomial::Polynomial;
 use crate::utils::{mod_reduce};
 use log::{info};
+
 impl CKKSEncryptor {
 
     // Function to perform homomorphic addition on two encrypted polynomials (ciphertexts)

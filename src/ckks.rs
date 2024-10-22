@@ -1,6 +1,6 @@
 use crate::polynomial::Polynomial;
 use crate::keygen::{PublicKey, SecretKey};
-use crate::utils::{encode, decode, mod_reduce, add_noise};
+use crate::utils::{encode, decode, mod_reduce, add_noise,encode_string,decode_string,mod_reduce_string};
 use log::{info};
 
 // Struct to hold CKKS parameters
@@ -84,6 +84,35 @@ impl CKKSEncryptor {
 
         ciphertext  // Return ciphertext
     }
+
+    // Function to encrypt a string
+    pub fn encrypt_string(&self, plaintext: &str) -> Polynomial {
+        let scaling_factor = 1e9; // Set scaling factor for encoding
+        
+        // Step 1: Encode the plaintext string into a polynomial
+        let encoded = encode_string(plaintext, scaling_factor);  // Use encode_string for string
+        info!("Encoded plaintext: {:?}", encoded);
+    
+        // Step 2: Ensure the public keys and encoded polynomial match in length
+        if self.pub_key.pk_0.len() < encoded.coeffs.len() || self.pub_key.pk_1.len() < encoded.coeffs.len() {
+            panic!("Public key length is insufficient for encryption.");
+        }
+    
+        // Step 3: Use public key for encryption
+        let encrypted_poly: Vec<i64> = encoded.coeffs.iter()
+            .zip(&self.pub_key.pk_0)
+            .zip(&self.pub_key.pk_1)
+            .map(|((e, pk0), pk1)| e + pk0 * pk1)  // Encrypt: encoded + pk_0 * pk_1
+            .collect();
+        
+        let encrypted_polynomial = Polynomial::new(encrypted_poly);
+        info!("Encrypted polynomial: {:?}", encrypted_polynomial);
+    
+        // Step 4: Perform modular reduction using the prime modulus
+        let ciphertext = mod_reduce_string(&encrypted_polynomial, self.params.modulus);
+        ciphertext  // Return ciphertext
+    }
+    
 }
 
 // Struct for CKKS Decryptor containing secret key and parameters
@@ -121,4 +150,26 @@ impl CKKSDecryptor {
 
         decoded // Return the decoded plaintext values
     }
+
+    // Function to decrypt a ciphertext polynomial back into a string
+    pub fn decrypt_string(&self, ciphertext: &Polynomial) -> String {
+        let scaling_factor = 1e9; // Set scaling factor for decoding
+        
+        // Step 1: Perform modular reduction
+        let reduced_poly = mod_reduce_string(ciphertext, self.params.modulus);
+        
+        // Step 2: Apply the secret key to reverse the encryption process
+        let decrypted_poly: Vec<i64> = reduced_poly.coeffs.iter()
+            .zip(&self.sec_key.poly)
+            .map(|(&c, &sk)| c - sk)  // Subtract the secret key
+            .collect();
+        
+        let decrypted_polynomial = Polynomial::new(decrypted_poly);
+        info!("Decrypted polynomial: {:?}", decrypted_polynomial);
+    
+        // Step 3: Decode the polynomial back into a string
+        let decoded_string = decode_string(&decrypted_polynomial, scaling_factor);  // Use decode_string for string
+        decoded_string  // Return the decrypted string
+    }
+    
 }
