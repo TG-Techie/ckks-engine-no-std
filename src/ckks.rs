@@ -126,7 +126,29 @@ impl CKKSDecryptor {
     pub fn new(sec_key: SecretKey, params: CkksParameters) -> Self {
         Self { sec_key, params }
     }
+    //decrypt for int
+    pub fn decrypt_as_int(&self, ciphertext: &Polynomial) -> Vec<i64> {
+        // Log the ciphertext before decryption
+        info!("Ciphertext before decryption: {:?}", ciphertext);
 
+        // Step 1: Perform modular reduction
+        let reduced_poly = mod_reduce(ciphertext, self.params.modulus);
+        info!("Ciphertext after modular reduction: {:?}", reduced_poly);
+
+        // Step 2: Apply the secret key to reverse the encryption
+        let decrypted_poly: Vec<i64> = reduced_poly.coeffs.iter()
+            .zip(&self.sec_key.poly)
+            .map(|(&c, &sk)| c - sk) // Subtract secret key influence
+            .collect();
+        let decrypted_polynomial = Polynomial::new(decrypted_poly);
+        info!("Decrypted polynomial (after applying secret key): {:?}", decrypted_polynomial);
+
+        // Step 3: Decode the decrypted polynomial to get integer values
+        let decoded = decrypted_polynomial.decode(); // Vec<i64>
+        info!("Decoded plaintext (after decryption): {:?}", decoded);
+
+        decoded
+    }
     // Function to decrypt a ciphertext polynomial
     pub fn decrypt(&self, ciphertext: &Polynomial) -> Vec<f64> {
         // Print the ciphertext before decryption for debugging

@@ -130,12 +130,10 @@ impl CKKSEncryptor {
     }
 
     pub fn homomorphic_truncate(&self, cipher: &Polynomial) -> Polynomial {
-        // Operate on encrypted coefficients
-        let truncate_poly: Vec<i64> = cipher.coeffs.iter().map(|&c| {
-            let scaled_value = (c as f64) / 1e7;
-            let truncated_value = scaled_value.trunc() as i64;
-            (truncated_value as i64) * (1e7 as i64)
-        }).collect();
+        let scale: i64 = 10_000_000; // Defining scaling factor as integer (1e7)
+
+        // Truncate each coefficient by performing integer division and scaling back up
+        let truncate_poly: Vec<i64> = cipher.coeffs.iter().map(|&c| (c / scale) * scale).collect();
 
         let truncated_polynomial = Polynomial::new(truncate_poly);
         info!("Polynomial after homomorphic truncate: {:?}", truncated_polynomial);

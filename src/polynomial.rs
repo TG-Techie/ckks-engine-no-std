@@ -9,6 +9,14 @@ impl Polynomial {
         Polynomial { coeffs }
     }
 
+    //wrote this only for homomorphic truncate - we haven't used this anywhere apart from it
+    pub fn decode(&self) -> Vec<i64> {
+        self.coeffs.iter().map(|&c| {
+            let real = (c as f64) / 10_000_000.0;
+            real.round() as i64 // Round to the nearest integer
+        }).collect()
+    }
+
     // Polynomial addition
     pub fn add(&self, other: &Polynomial) -> Polynomial {
         // Determine the maximum length of the two polynomials
