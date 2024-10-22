@@ -20,6 +20,20 @@ We are excited to announce the initial release of version 1.0 of `ckks-engine`. 
   - **Multiplication**: Multiply encrypted values securely, enabling more complex computations while preserving privacy.
   - **Negation**: Compute the negation of encrypted values, providing additional flexibility in mathematical operations.
 
+### Version 2.0 Release
+
+We are excited to announce the initial release of version 2.0 of `ckks-engine`. This version includes additional features for enhanced encrypted computations. Key highlights of this release include:
+
+- **Floating-Point Number Operations**:
+  - **Ceil**: Compute the ceiling of encrypted floating-point numbers.
+  - **Round**: Round encrypted floating-point numbers to the nearest integer.
+  - **Floor**: Compute the floor of encrypted floating-point numbers.
+  - **Truncate**: Remove the decimal part of encrypted floating-point numbers.
+
+- **String Operations**:
+  - **Character Encoding**: Convert characters into ASCII/Unicode values for encryption.
+  - **Length Calculation**: Calculate the length of encrypted strings.
+
 ## Project Architecture
 
 The architecture is modular, ensuring scalability and separation of concerns. Below is an overview of the project's architecture:
@@ -57,6 +71,10 @@ The architecture is modular, ensuring scalability and separation of concerns. Be
     - Homomorphic addition, subtraction, multiplication, and negation.
   - Allows operations on both individual values and collections of encrypted values (arrays).
 
+- **`stringfn.rs`**:
+  - Contains functions for string operations, including length calculation for encrypted strings.
+
+
 ### Flow of Operations
 
 The CKKS engine follows this flow for encryption and operations:
@@ -71,7 +89,7 @@ The CKKS engine follows this flow for encryption and operations:
    - Encoded polynomials are encrypted using the public key with the CKKS scheme in `ckks.rs`.
 
 4. **Homomorphic Operations**:
-   - Homomorphic arithmetic (addition, subtraction, multiplication, negation) is applied directly to ciphertexts in `ckks.rs`.
+   - Homomorphic operations are applied directly to ciphertexts.
 
 5. **Decryption**:
    - The encrypted polynomials (ciphertexts) are decrypted using the secret key.
@@ -87,7 +105,8 @@ The modules interact to form a complete system for secure, encrypted computation
 - **Data encoding** and **decoding** occur in `utils.rs`.
 - **Encryption and decryption** processes are handled in `ckks.rs`.
 - **Polynomial operations** are defined in `polynomial.rs`.
-- **Homomorphic arithmetic** is performed in `arithmetic.rs`.
+- **Homomorphic arithmetic and float** is performed in `arithmetic.rs`.
+- **String operations**, including length calculation, are handled in `stringfn.rs`.
 
 ## Crate Dependencies
 
@@ -121,22 +140,10 @@ log = "0.4"
 env_logger = "0.10"
 ```
 
-### Sample Usage
-
-The `main.rs` file demonstrates the use of these modules and how to:
-
-- Generate encryption keys.
-- Encrypt integer and floating-point data.
-- Perform homomorphic operations (addition, subtraction, multiplication, negation).
-- Decrypt and retrieve the original values.
-
-The modular design ensures that the project is scalable and easy to extend, allowing for future optimizations or additional functionality.
-
-
 
 ## Usage
 
-To test and utilize the features of `ckks-engine`, a sample code is provided in `main.rs`. This code demonstrates the functionality of the encryption scheme and basic arithmetic operations.
+To test and utilize the features of `ckks-engine`, a sample code is provided in examples directory. This code demonstrates the functionality of the encryption scheme and basic homomorphic operations.
 
 ### Instructions to Run the Code
 
@@ -152,12 +159,13 @@ To test and utilize the features of `ckks-engine`, a sample code is provided in 
     ```bash
     cargo build
     ```
-4. Run the sample code:
+4. Run the example code:
+
+   v1_examples --> For arithmectic operations
+   v2_examples --> For float and string operations
+
     ```bash
-    cargo run
+    cargo run --example v1_examples
     ```
 
-This will execute the sample code in main.rs, illustrating how to use the ckks-engine crate for encrypted computations.
-
-## Conclusion
-The ckks-engine crate empowers developers to perform secure computations on real numbers using the CKKS homomorphic encryption scheme. We invite you to explore the features of this crate and integrate it into your projects where data privacy is of utmost importance.
+This will execute the sample code, illustrating how to use the ckks-engine crate for encrypted computations.

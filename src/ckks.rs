@@ -1,6 +1,6 @@
 use crate::polynomial::Polynomial;
 use crate::keygen::{PublicKey, SecretKey};
-use crate::utils::{encode, decode, mod_reduce, add_noise,encode_string,decode_string,mod_reduce_string};
+use crate::utils::{encode, decode, mod_reduce,encode_string,decode_string,mod_reduce_string};
 use log::{info};
 
 // Struct to hold CKKS parameters
@@ -149,6 +149,7 @@ impl CKKSDecryptor {
 
         decoded
     }
+
     // Function to decrypt a ciphertext polynomial
     pub fn decrypt(&self, ciphertext: &Polynomial) -> Vec<f64> {
         // Print the ciphertext before decryption for debugging

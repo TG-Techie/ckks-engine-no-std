@@ -8,8 +8,6 @@ pub mod utils;
 pub mod arithmetic;
 pub mod stringfn;
 
-use std::env;
-use log::info;
 // Re-export key structs/functions from modules for easy access
 pub use ckks::{CKKSEncryptor, CKKSDecryptor, CkksParameters};
 pub use polynomial::Polynomial;
