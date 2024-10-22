@@ -85,6 +85,28 @@ impl CKKSEncryptor {
         reduced_result
     }
 
+    // Function to perform homomorphic floor on encrypted polynomials (ciphertexts)
+    pub fn homomorphic_floor(&self, cipher: &Polynomial) -> Polynomial {
+        // This function will operate on encrypted coefficients
+        let floor_poly: Vec<i64> = cipher.coeffs.iter().map(|&c| {
+            let scaled_value = (c as f64) / 1e7; // scale down
+            let floor_value = scaled_value.floor() as i64; // apply floor
+            (floor_value as i64) * (1e7 as i64) // scale up back after floor
+        }).collect();
+
+        // Return the new polynomial with floor applied on encrypted data
+        let floor_polynomial = Polynomial::new(floor_poly);
+        info!("Polynomial after homomorphic floor: {:?}", floor_polynomial);
+
+        // Perform modular reduction to ensure the result fits within the modulus
+        let reduced_result = mod_reduce(&floor_polynomial, self.params.modulus);
+        info!("Result after mod reduction (floor): {:?}", reduced_result);
+
+        // Return the reduced result
+        reduced_result
+    }
+
+
     // Function to perform homomorphic round on encrypted polynomials (ciphertexts)
     pub fn homomorphic_round(&self, cipher: &Polynomial) -> Polynomial {
         // Operate on encrypted coefficients

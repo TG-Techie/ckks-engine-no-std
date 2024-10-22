@@ -60,7 +60,7 @@ pub fn run_ckks_operations() {
     let encrypted_scalar_float1 = encryptor.encrypt_value(scalar_float1);
     let encrypted_scalar_float2 = encryptor.encrypt_value(scalar_float2);
 
-    Homomorphic Operations on Arrays
+    // Homomorphic Operations on Arrays
     info!("\n=== Homomorphic Operations on Arrays ===");
 
     // Integer Array vs Integer Array
@@ -157,35 +157,41 @@ pub fn run_ckks_operations() {
     info!("Multiplication (int * float): {:?}", decrypted_scalar_int_float_multiply);
 
     // Homomorphic ceil operation
-    // Encrypt floating-point values
-    info!("\n========================================");
-    // Homomorphic ceil operation on encrypted values
     info!("\n=== Homomorphic Ceil Operations ===");
 
-    // Perform ceil operation on the encrypted float array1
+    // Perform ceil operation on the float array1
     let encrypted_ceil_float_array1 = encryptor.homomorphic_ceil(&encrypted_float_array1);
     let decrypted_ceil_float_array1 = decryptor.decrypt(&encrypted_ceil_float_array1);
-    info!("\n========================================");
     info!("Decrypted ceil values for float array 1: {:?}", decrypted_ceil_float_array1);
 
-    // Perform ceil operation on the encrypted float array2
+    // Perform ceil operation on the float array2
     let encrypted_ceil_float_array2 = encryptor.homomorphic_ceil(&encrypted_float_array2);
     let decrypted_ceil_float_array2 = decryptor.decrypt(&encrypted_ceil_float_array2);
-    info!("\n========================================");
     info!("Decrypted ceil values for float array 2: {:?}", decrypted_ceil_float_array2);
 
-    // Perform ceil operation on the encrypted scalar float1
+    // Perform ceil operation on the scalar float1
     let encrypted_ceil_scalar_float1 = encryptor.homomorphic_ceil(&encrypted_scalar_float1);
     let decrypted_ceil_scalar_float1 = decryptor.decrypt(&encrypted_ceil_scalar_float1);
-    info!("\n========================================");
     info!("Decrypted ceil value for scalar float 1: {:?}", decrypted_ceil_scalar_float1);
 
-    // Perform ceil operation on the encrypted scalar float2
+    // Perform ceil operation on the scalar float2
     let encrypted_ceil_scalar_float2 = encryptor.homomorphic_ceil(&encrypted_scalar_float2);
     let decrypted_ceil_scalar_float2 = decryptor.decrypt(&encrypted_ceil_scalar_float2);
-    info!("\n========================================");
     info!("Decrypted ceil value for scalar float 2: {:?}", decrypted_ceil_scalar_float2);
 
+    // Homomorphic floor operation
+
+    info!("\n=== Homomorphic Floor Operations ===");
+
+    // Perform floor operation on the float array1
+    let encrypted_floor_float_array1 = encryptor.homomorphic_floor(&encrypted_float_array1);
+    let decrypted_floor_float_array1 = decryptor.decrypt(&encrypted_floor_float_array1);
+    info!("Decrypted floor values for float array 1: {:?}", decrypted_floor_float_array1);
+
+    // Perform floor operation on the float array2
+    let encrypted_floor_float_array2 = encryptor.homomorphic_floor(&encrypted_float_array2);
+    let decrypted_floor_float_array2 = decryptor.decrypt(&encrypted_floor_float_array2);
+    info!("Decrypted floor values for float array 2: {:?}", decrypted_floor_float_array2);
     info!("\n=== Homomorphic Round and Truncate Operations ===");
 
     // Perform round operation on the encrypted float array1
@@ -193,12 +199,27 @@ pub fn run_ckks_operations() {
     let decrypted_round_float_array1 = decryptor.decrypt(&encrypted_round_float_array1);
     info!("Decrypted round values for float array 1: {:?}", decrypted_round_float_array1);
 
-    // Perform truncate operation on the encrypted float array1
+    // Perform floor operation on the scalar float1
+    let encrypted_floor_scalar_float1 = encryptor.homomorphic_floor(&encrypted_scalar_float1);
+    let decrypted_floor_scalar_float1 = decryptor.decrypt(&encrypted_floor_scalar_float1);
+    info!("Decrypted floor value for scalar float 1: {:?}", decrypted_floor_scalar_float1);
+
+    // Perform floor operation on the scalar float2
+    let encrypted_floor_scalar_float2 = encryptor.homomorphic_floor(&encrypted_scalar_float2);
+    let decrypted_floor_scalar_float2 = decryptor.decrypt(&encrypted_floor_scalar_float2);
+    info!("Decrypted floor value for scalar float 2: {:?}", decrypted_floor_scalar_float2);
+
+    //Perform round operation on float arr1
+    let encrypted_round_float_array1 = encryptor.homomorphic_round(&encrypted_float_array1);
+    let decrypted_round_float_array1 = decryptor.decrypt(&encrypted_round_float_array1);
+    info!("Decrypted truncate values for float array 1: {:?}", decrypted_round_float_array1);
+
+
+    // Perform truncate operation on the float array1
     let encrypted_truncate_float_array1 = encryptor.homomorphic_truncate(&encrypted_float_array1);
     let decrypted_truncate_float_array1 = decryptor.decrypt(&encrypted_truncate_float_array1);
     info!("Decrypted truncate values for float array 1: {:?}", decrypted_truncate_float_array1);
 
-    // Similarly, perform round and truncate on float array2 and scalar floats
     // Round on float array2
     let encrypted_round_float_array2 = encryptor.homomorphic_round(&encrypted_float_array2);
     let decrypted_round_float_array2 = decryptor.decrypt(&encrypted_round_float_array2);
@@ -214,14 +235,16 @@ pub fn run_ckks_operations() {
     let decrypted_round_scalar_float1 = decryptor.decrypt(&encrypted_round_scalar_float1);
     info!("Decrypted round value for scalar float 1: {:?}", decrypted_round_scalar_float1);
 
-    let encrypted_round_scalar_float2 = encryptor.homomorphic_round(&encrypted_scalar_float2);
-    let decrypted_round_scalar_float2 = decryptor.decrypt(&encrypted_round_scalar_float2);
-    info!("Decrypted round value for scalar float 2: {:?}", decrypted_round_scalar_float2);
-
     // Truncate on scalar floats
     let encrypted_truncate_scalar_float1 = encryptor.homomorphic_truncate(&encrypted_scalar_float1);
     let decrypted_truncate_scalar_float1 = decryptor.decrypt(&encrypted_truncate_scalar_float1);
     info!("Decrypted truncate value for scalar float 1: {:?}", decrypted_truncate_scalar_float1);
+
+
+    let encrypted_round_scalar_float2 = encryptor.homomorphic_round(&encrypted_scalar_float2);
+    let decrypted_round_scalar_float2 = decryptor.decrypt(&encrypted_round_scalar_float2);
+    info!("Decrypted round value for scalar float 2: {:?}", decrypted_round_scalar_float2);
+
 
     let encrypted_truncate_scalar_float2 = encryptor.homomorphic_truncate(&encrypted_scalar_float2);
     let decrypted_truncate_scalar_float2 = decryptor.decrypt(&encrypted_truncate_scalar_float2);
@@ -230,5 +253,4 @@ pub fn run_ckks_operations() {
 
     info!("\n=== All operations completed ===");
 
-    info!("\n=== All operations completed ===");
 }
