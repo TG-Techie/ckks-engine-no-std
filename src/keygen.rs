@@ -32,7 +32,7 @@ impl KeyGenerator {
 
         // Generate a random polynomial for public key generation
         let random_poly: Vec<i64> = (0..2048).map(|_| rng.gen_range(1..100)).collect();
-       
+      
         // Create public key polynomials
         let pk_0: Vec<i64> = sec_key_poly.iter().zip(&random_poly)
             .map(|(&sk, &r)| -sk * r + rng.gen_range(-10..10))  // Compute pk_0 as -sk * random + noise
