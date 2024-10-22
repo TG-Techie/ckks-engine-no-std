@@ -194,11 +194,6 @@ pub fn run_ckks_operations() {
     info!("Decrypted floor values for float array 2: {:?}", decrypted_floor_float_array2);
     info!("\n=== Homomorphic Round and Truncate Operations ===");
 
-    // Perform round operation on the encrypted float array1
-    let encrypted_round_float_array1 = encryptor.homomorphic_round(&encrypted_float_array1);
-    let decrypted_round_float_array1 = decryptor.decrypt(&encrypted_round_float_array1);
-    info!("Decrypted round values for float array 1: {:?}", decrypted_round_float_array1);
-
     // Perform floor operation on the scalar float1
     let encrypted_floor_scalar_float1 = encryptor.homomorphic_floor(&encrypted_scalar_float1);
     let decrypted_floor_scalar_float1 = decryptor.decrypt(&encrypted_floor_scalar_float1);
