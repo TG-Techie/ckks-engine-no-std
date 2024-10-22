@@ -107,4 +107,43 @@ impl CKKSEncryptor {
     }
 
 
+    // Function to perform homomorphic round on encrypted polynomials (ciphertexts)
+    pub fn homomorphic_round(&self, cipher: &Polynomial) -> Polynomial {
+        // Operate on encrypted coefficients
+        let round_poly: Vec<i64> = cipher.coeffs.iter().map(|&c| {
+            let scaled_value = (c as f64) / 1e7; // Scale down
+            let rounded_value = scaled_value.round() as i64; // Apply round
+            (rounded_value as i64) * (1e7 as i64) // Scale up back after rounding
+        }).collect();
+
+        // Create a new polynomial with rounded coefficients
+        let rounded_polynomial = Polynomial::new(round_poly);
+        info!("Polynomial after homomorphic round: {:?}", rounded_polynomial);
+
+        // Perform modular reduction to ensure the result fits within the modulus
+        let reduced_result = mod_reduce(&rounded_polynomial, self.params.modulus);
+        info!("Result after mod reduction (round): {:?}", reduced_result);
+
+        // Return the reduced result
+        reduced_result
+    }
+
+    pub fn homomorphic_truncate(&self, cipher: &Polynomial) -> Polynomial {
+        // Operate on encrypted coefficients
+        let truncate_poly: Vec<i64> = cipher.coeffs.iter().map(|&c| {
+            let scaled_value = (c as f64) / 1e7;
+            let truncated_value = scaled_value.trunc() as i64;
+            (truncated_value as i64) * (1e7 as i64)
+        }).collect();
+
+        let truncated_polynomial = Polynomial::new(truncate_poly);
+        info!("Polynomial after homomorphic truncate: {:?}", truncated_polynomial);
+
+        let reduced_result = mod_reduce(&truncated_polynomial, self.params.modulus);
+        info!("Result after mod reduction (truncate): {:?}", reduced_result);
+        reduced_result
+    }
+
+
+
 }
