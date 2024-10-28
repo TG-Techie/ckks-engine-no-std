@@ -39,7 +39,7 @@ impl CKKSEncryptor {
     pub fn homomorphic_multiply(&self, cipher1: &Polynomial, cipher2: &Polynomial) -> Polynomial {
     
         // Multiply the two polynomials (ciphertexts). The result size is determined by the degree of the polynomials
-        let result = cipher1.multiply(cipher2);
+        let result = cipher1.multiply_v2(cipher2);
         info!("Result after polynomial multiplication: {:?}", result);
     
         // Perform modular reduction to ensure the result fits within the modulus
@@ -142,6 +142,56 @@ impl CKKSEncryptor {
         info!("Result after mod reduction (truncate): {:?}", reduced_result);
         reduced_result
     }
+
+    pub fn homomorphic_reciprocal(&self, cipher: &Polynomial, iterations: u32) -> Polynomial {
+        let scale: i64 = 10_000_000; // Define scaling factor as integer (1e7)
+
+        // Initialize the reciprocal with a closer initial guess
+        let mut reciprocal = Polynomial::new(vec![scale / 2]); // Represents 0.5
+
+        for i in 0..iterations {
+            // Step 1: Compute c * x_n / scale
+            let temp = self.homomorphic_multiply(cipher, &reciprocal);
+            let temp_coeff = temp.coeffs[0];
+            info!("Iteration {}: c * x_n / scale = {}", i + 1, temp_coeff);
+
+            // Step 2: Compute 2 * scale - temp_coeff
+            let two_scale = scale * 2;
+            let updated_coeff = two_scale - temp_coeff;
+            info!("Iteration {}: 2 * scale - temp_coeff = {}", i + 1, updated_coeff);
+
+            // Step 3: Multiply the updated_coeff with the current reciprocal
+            let updated_poly = Polynomial::new(vec![updated_coeff]);
+            let multiplied = self.homomorphic_multiply(&updated_poly, &reciprocal);
+            info!("Iteration {}: (2 * scale - temp_coeff) * x_n / scale = {:?}", i + 1, multiplied);
+
+            // Step 4: Update the reciprocal
+            reciprocal = multiplied;
+            info!("Reciprocal after iteration {}: {:?}", i + 1, reciprocal);
+        }
+
+        reciprocal
+    }
+
+    /// Performs homomorphic division: encrypted_numerator / encrypted_denominator
+    pub fn homomorphic_divide(&self, numerator: &Polynomial, denominator: &Polynomial, iterations: u32) -> Polynomial {
+        // Step 1: Compute reciprocal of denominator
+        let reciprocal = self.homomorphic_reciprocal(denominator, iterations);
+        info!("Computed reciprocal of denominator: {:?}", reciprocal);
+
+        // Step 2: Multiply numerator by reciprocal
+        let division_result = self.homomorphic_multiply(numerator, &reciprocal);
+        info!("Division result before modular reduction: {:?}", division_result);
+
+        // Step 3: Perform modular reduction
+        let reduced_result = mod_reduce(&division_result, self.params.modulus);
+        info!("Division result after modular reduction: {:?}", reduced_result);
+
+        reduced_result
+    }
+
+
+
 
 
 
