@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Polynomial {
     pub coeffs: Vec<i64>,  // Coefficients for the polynomial
 }

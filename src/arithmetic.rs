@@ -143,6 +143,32 @@ impl CKKSEncryptor {
         reduced_result
     }
 
+    // Function to perform homomorphic exponentiation on an encrypted polynomial (ciphertext)
+    pub fn homomorphic_exponentiation(&self, cipher: &Polynomial, exponent: u32) -> Polynomial {
+        if exponent == 0 {
+            // Return polynomial representing 1 (scaled by 1e7)
+            return Polynomial::new(vec![10000000]); 
+        }
+        
+        if exponent == 1 {
+            return cipher.clone();
+        }
+    
+        // Initialize the result with the original ciphertext
+        let mut result = cipher.clone();
 
+        // Perform repeated multiplication
+        for _ in 1..exponent {
+            // Multiply the result by cipher polynomial
+            let temp = self.homomorphic_multiply(&result, cipher);
+            result = temp;
+        }
+    
+        // Perform modular reduction to ensure the result fits within the modulus
+        let reduced_result = mod_reduce(&result, self.params.modulus);
+        info!("Result after homomorphic exponentiation and mod reduction: {:?}", reduced_result);
+
+        reduced_result
+    }
 
 }
