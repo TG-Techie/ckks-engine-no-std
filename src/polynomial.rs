@@ -109,4 +109,24 @@ impl Polynomial {
         // Create a new polynomial with rounded negated coefficients
         Polynomial::new(negated_coeffs.iter().map(|&x| x.round() as i64).collect())
     }
+
+    pub fn divide(&self, divisor: &Polynomial, scaling_factor: f64) -> Polynomial {
+        let mut result_coeffs = Vec::with_capacity(self.coeffs.len());
+
+        for (a, b) in self.coeffs.iter().zip(divisor.coeffs.iter()) {
+            // Check for zero in the divisor to avoid division by zero
+            if *b == 0 {
+                panic!("Division by zero encountered in polynomial division");
+            }
+
+            // Perform the division and scaling
+            let scaled_result = (*a as f64 / *b as f64) * scaling_factor;
+
+            // Convert the scaled result to an integer and push it into the result coefficients
+            result_coeffs.push(scaled_result.round() as i64);
+        }
+
+        // Return a new polynomial with the resulting coefficients after division
+        Polynomial::new(result_coeffs)
+    }
 }

@@ -174,22 +174,19 @@ impl CKKSEncryptor {
     }
 
     /// Performs homomorphic division: encrypted_numerator / encrypted_denominator
-    pub fn homomorphic_divide(&self, numerator: &Polynomial, denominator: &Polynomial, iterations: u32) -> Polynomial {
-        // Step 1: Compute reciprocal of denominator
-        let reciprocal = self.homomorphic_reciprocal(denominator, iterations);
-        info!("Computed reciprocal of denominator: {:?}", reciprocal);
+    pub fn homomorphic_divide(&self, cipher1: &Polynomial, cipher2: &Polynomial) -> Polynomial {
+        let scaling_factor = 1e7; // Use a scaling factor for precision
 
-        // Step 2: Multiply numerator by reciprocal
-        let division_result = self.homomorphic_multiply(numerator, &reciprocal);
-        info!("Division result before modular reduction: {:?}", division_result);
+        // Use the divide function from the Polynomial struct
+        let result_poly = cipher1.divide(cipher2, scaling_factor);
+        info!("Result after division and scaling: {:?}", result_poly);
 
-        // Step 3: Perform modular reduction
-        let reduced_result = mod_reduce(&division_result, self.params.modulus);
-        info!("Division result after modular reduction: {:?}", reduced_result);
+        // Apply modular reduction to keep coefficients within the bounds of the modulus
+        let reduced_result = mod_reduce(&result_poly, self.params.modulus);
+        info!("Result after modular reduction: {:?}", reduced_result);
 
-        reduced_result
+        reduced_result // Return the final homomorphic division result
     }
-
 
 
 

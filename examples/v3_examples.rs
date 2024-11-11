@@ -28,12 +28,12 @@ fn test_homomorphic_divide() {
 
     // Encrypt numerator and denominator
     let numerator = 500;
-    let denominator = 10;
+    let denominator = 2;
     let encrypted_numerator = encryptor.encrypt_value(numerator);
     let encrypted_denominator = encryptor.encrypt_value(denominator);
 
     // Perform division with 5 iterations for reciprocal approximation
-    let encrypted_division = encryptor.homomorphic_divide(&encrypted_numerator, &encrypted_denominator, 10);
+    let encrypted_division = encryptor.homomorphic_divide(&encrypted_numerator, &encrypted_denominator);
 
     // Decrypt the result as integers
     let decrypted_division = decryptor.decrypt_as_int(&encrypted_division);
