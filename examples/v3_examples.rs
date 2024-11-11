@@ -4,11 +4,17 @@ use ckks_engine::*;
 use log::info;
 use env_logger;
 
+fn main(){
 fn main() {
     // Initialize the logger
     env_logger::Builder::from_default_env()
         .filter_level(log::LevelFilter::Info)
         .init();
+    // Run the homomorphic divide test
+    test_homomorphic_divide();
+}
+
+fn test_homomorphic_divide() {
     
     // Run the homomorphic exponentiation test
     test_homomorphic_exponentiation();
@@ -37,6 +43,19 @@ fn test_homomorphic_exponentiation() {
     let encryptor = CKKSEncryptor::new(public_key.clone(), params.clone());
     let decryptor = CKKSDecryptor::new(secret_key.clone(), params.clone());
 
+    // Encrypt numerator and denominator
+    let numerator = 500;
+    let denominator = 2;
+    let encrypted_numerator = encryptor.encrypt_value(numerator);
+    let encrypted_denominator = encryptor.encrypt_value(denominator);
+
+    // Perform division with 5 iterations for reciprocal approximation
+    let encrypted_division = encryptor.homomorphic_divide(&encrypted_numerator, &encrypted_denominator);
+
+    // Decrypt the result as integers
+    let decrypted_division = decryptor.decrypt_as_int(&encrypted_division);
+    info!("Decrypted division result: {:?}", decrypted_division);
+}
     // Declare a float array and a scalar float value
     let float_array = [2.3, 1.5, 4.7];
     let scalar_float = 3.14;
@@ -69,5 +88,3 @@ fn test_homomorphic_exponentiation() {
 
     info!("\n=== Exponentiation Operations Completed ===");
 }
-
-
