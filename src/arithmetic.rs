@@ -39,7 +39,7 @@ impl CKKSEncryptor {
     pub fn homomorphic_multiply(&self, cipher1: &Polynomial, cipher2: &Polynomial) -> Polynomial {
     
         // Multiply the two polynomials (ciphertexts). The result size is determined by the degree of the polynomials
-        let result = cipher1.multiply_v2(cipher2);
+        let result = cipher1.multiply(cipher2);
         info!("Result after polynomial multiplication: {:?}", result);
     
         // Perform modular reduction to ensure the result fits within the modulus
@@ -173,18 +173,17 @@ impl CKKSEncryptor {
         reciprocal
     }
 
-    /// Performs homomorphic division: encrypted_numerator / encrypted_denominator
     pub fn homomorphic_divide(&self, cipher1: &Polynomial, cipher2: &Polynomial) -> Polynomial {
         let scaling_factor = 1e7; // Use a scaling factor for precision
-
+ 
         // Use the divide function from the Polynomial struct
         let result_poly = cipher1.divide(cipher2, scaling_factor);
         info!("Result after division and scaling: {:?}", result_poly);
-
+ 
         // Apply modular reduction to keep coefficients within the bounds of the modulus
         let reduced_result = mod_reduce(&result_poly, self.params.modulus);
         info!("Result after modular reduction: {:?}", reduced_result);
-
+ 
         reduced_result // Return the final homomorphic division result
     }
 
@@ -209,8 +208,9 @@ impl CKKSEncryptor {
             // Multiply the result by cipher polynomial
             let temp = self.homomorphic_multiply(&result, cipher);
             result = temp;
+            println!("bro the result is {:?}",result);
         }
-    
+        println!("bro the result is {:?}",result);
         // Perform modular reduction to ensure the result fits within the modulus
         let reduced_result = mod_reduce(&result, self.params.modulus);
         info!("Result after homomorphic exponentiation and mod reduction: {:?}", reduced_result);
