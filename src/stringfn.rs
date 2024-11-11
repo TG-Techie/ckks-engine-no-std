@@ -1,5 +1,6 @@
 use crate::polynomial::Polynomial;
 use crate::ckks::CKKSEncryptor;
+use std::ops::RangeBounds;
 
 impl CKKSEncryptor {
     /// Function to calculate the homomorphic length of an encrypted string.
@@ -24,5 +25,31 @@ impl CKKSEncryptor {
         // Create and return the new concatenated polynomial
         Polynomial::new(combined_coeffs)
     }
-    
+
+     /// Extracts a substring from an encrypted string, using Rust range syntax.
+    /// - `encrypted_poly`: The encrypted string as a polynomial.
+    /// - `range`: A range representing the indices to extract (e.g., `0..3`, `3..`, `..5`).
+    pub fn extract_encrypted_substring<R>(&self, encrypted_poly: &Polynomial, range: R) -> Polynomial
+    where
+        R: RangeBounds<usize>,
+    {
+        // Convert RangeBounds into a concrete Range<usize>
+        let start = match range.start_bound() {
+            std::ops::Bound::Included(&s) => s,
+            std::ops::Bound::Excluded(&s) => s + 1,
+            std::ops::Bound::Unbounded => 0,
+        };
+
+        let end = match range.end_bound() {
+            std::ops::Bound::Included(&e) => e + 1,
+            std::ops::Bound::Excluded(&e) => e,
+            std::ops::Bound::Unbounded => encrypted_poly.coeffs.len(),
+        };
+
+        // Apply the range to get the substring coefficients
+        let substring_coeffs = encrypted_poly.coeffs[start..end].to_vec();
+
+        // Return a new polynomial with the substring coefficients
+        Polynomial::new(substring_coeffs)
+    }
 }

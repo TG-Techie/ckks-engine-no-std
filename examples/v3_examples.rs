@@ -2,6 +2,7 @@ use ckks_engine::*;
 use log::info;
 
 
+
 pub fn adv_string_operations(){
     std::env::set_var("RUST_LOG", "info");
     env_logger::init();
@@ -18,7 +19,7 @@ pub fn adv_string_operations(){
 
    // Define some strings to encrypt and decrypt
    let string1 = "Hello, CKKS. This is ";
-   let string2 = "Homomorphic Encryption";
+   let string2 = "Homomorphic Encryption of Strings";
 
    // Encrypt the strings
    info!("\n=== Encrypting Strings ===");
@@ -29,7 +30,13 @@ pub fn adv_string_operations(){
 
    let decrypted_string1 = decryptor.decrypt_string(&concatenate);
 
-   info!("Decrypted String 1: {:?}", decrypted_string1);
+   info!("Decrypted Concatenated String : {:?}", decrypted_string1);
+
+   let encrypted_substring = encryptor.extract_encrypted_substring(&encrypted_string1, ..3);
+
+   let decrypted_string2 = decryptor.decrypt_string(&encrypted_substring);
+   info!("Decrypted Sub String : {:?}", decrypted_string2);
+
 
 
 }
