@@ -39,7 +39,7 @@ impl CKKSEncryptor {
     pub fn homomorphic_multiply(&self, cipher1: &Polynomial, cipher2: &Polynomial) -> Polynomial {
     
         // Multiply the two polynomials (ciphertexts). The result size is determined by the degree of the polynomials
-        let result = cipher1.multiply(cipher2);
+        let result = cipher1.multiply_v2(cipher2);
         info!("Result after polynomial multiplication: {:?}", result);
     
         // Perform modular reduction to ensure the result fits within the modulus
@@ -143,6 +143,79 @@ impl CKKSEncryptor {
         reduced_result
     }
 
+    pub fn homomorphic_reciprocal(&self, cipher: &Polynomial, iterations: u32) -> Polynomial {
+        let scale: i64 = 10_000_000; // Define scaling factor as integer (1e7)
 
+        // Initialize the reciprocal with a closer initial guess
+        let mut reciprocal = Polynomial::new(vec![scale / 2]); // Represents 0.5
+
+        for i in 0..iterations {
+            // Step 1: Compute c * x_n / scale
+            let temp = self.homomorphic_multiply(cipher, &reciprocal);
+            let temp_coeff = temp.coeffs[0];
+            info!("Iteration {}: c * x_n / scale = {}", i + 1, temp_coeff);
+
+            // Step 2: Compute 2 * scale - temp_coeff
+            let two_scale = scale * 2;
+            let updated_coeff = two_scale - temp_coeff;
+            info!("Iteration {}: 2 * scale - temp_coeff = {}", i + 1, updated_coeff);
+
+            // Step 3: Multiply the updated_coeff with the current reciprocal
+            let updated_poly = Polynomial::new(vec![updated_coeff]);
+            let multiplied = self.homomorphic_multiply(&updated_poly, &reciprocal);
+            info!("Iteration {}: (2 * scale - temp_coeff) * x_n / scale = {:?}", i + 1, multiplied);
+
+            // Step 4: Update the reciprocal
+            reciprocal = multiplied;
+            info!("Reciprocal after iteration {}: {:?}", i + 1, reciprocal);
+        }
+
+        reciprocal
+    }
+
+    /// Performs homomorphic division: encrypted_numerator / encrypted_denominator
+    pub fn homomorphic_divide(&self, cipher1: &Polynomial, cipher2: &Polynomial) -> Polynomial {
+        let scaling_factor = 1e7; // Use a scaling factor for precision
+
+        // Use the divide function from the Polynomial struct
+        let result_poly = cipher1.divide(cipher2, scaling_factor);
+        info!("Result after division and scaling: {:?}", result_poly);
+
+        // Apply modular reduction to keep coefficients within the bounds of the modulus
+        let reduced_result = mod_reduce(&result_poly, self.params.modulus);
+        info!("Result after modular reduction: {:?}", reduced_result);
+
+        reduced_result // Return the final homomorphic division result
+    }
+
+
+
+    // Function to perform homomorphic exponentiation on an encrypted polynomial (ciphertext)
+    pub fn homomorphic_exponentiation(&self, cipher: &Polynomial, exponent: u32) -> Polynomial {
+        if exponent == 0 {
+            // Return polynomial representing 1 (scaled by 1e7)
+            return Polynomial::new(vec![10000000]); 
+        }
+        
+        if exponent == 1 {
+            return cipher.clone();
+        }
+    
+        // Initialize the result with the original ciphertext
+        let mut result = cipher.clone();
+
+        // Perform repeated multiplication
+        for _ in 1..exponent {
+            // Multiply the result by cipher polynomial
+            let temp = self.homomorphic_multiply(&result, cipher);
+            result = temp;
+        }
+    
+        // Perform modular reduction to ensure the result fits within the modulus
+        let reduced_result = mod_reduce(&result, self.params.modulus);
+        info!("Result after homomorphic exponentiation and mod reduction: {:?}", reduced_result);
+
+        reduced_result
+    }
 
 }

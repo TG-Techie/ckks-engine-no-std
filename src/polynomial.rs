@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Polynomial {
     pub coeffs: Vec<i64>,  // Coefficients for the polynomial
 }
@@ -63,6 +63,44 @@ impl Polynomial {
         // Create a new polynomial with rounded coefficients
         Polynomial::new(result_coeffs.iter().map(|&x| x.round() as i64).collect())
     }
+    // pub fn multiply_v2(&self, other: &Polynomial) -> Polynomial {
+    //     // Determine size for the resulting polynomial
+    //     let result_size = self.coeffs.len() + other.coeffs.len() - 1;
+    //     let mut result_coeffs = vec![0.0; result_size]; // Initialize result coefficients with f64 for scaling
+    //
+    //     // Perform convolution (polynomial multiplication)
+    //     for i in 0..self.coeffs.len() {
+    //         for j in 0..other.coeffs.len() {
+    //             result_coeffs[i + j] += (self.coeffs[i] as f64 * other.coeffs[j] as f64) / 1e7; // Scale and add
+    //         }
+    //     }
+    //
+    //     // Round the coefficients to the nearest integer
+    //     let rounded_coeffs: Vec<i64> = result_coeffs.iter().map(|&x| x.round() as i64).collect();
+    //
+    //     Polynomial::new(rounded_coeffs)  // Return new polynomial as the result
+    // }
+
+    pub fn multiply_v2(&self, other: &Polynomial) -> Polynomial {
+        let result_size = self.coeffs.len() + other.coeffs.len() - 1;
+        let mut result_coeffs = vec![0; result_size];
+
+        // Perform convolution
+        for i in 0..self.coeffs.len() {
+            for j in 0..other.coeffs.len() {
+                result_coeffs[i + j] += self.coeffs[i] * other.coeffs[j];
+            }
+        }
+
+        // Rescale by dividing by the scaling factor (s = 1e7)
+        let s = 10_000_000;
+        let scaled_result: Vec<i64> = result_coeffs.iter().map(|&c| (c + s / 2) / s).collect(); // Rounded division
+
+        Polynomial::new(scaled_result)
+    }
+
+
+
 
     // Polynomial negation
     pub fn negation(&self) -> Polynomial {
@@ -70,5 +108,25 @@ impl Polynomial {
         let negated_coeffs: Vec<f64> = self.coeffs.iter().map(|&c| -(c as f64)).collect();
         // Create a new polynomial with rounded negated coefficients
         Polynomial::new(negated_coeffs.iter().map(|&x| x.round() as i64).collect())
+    }
+
+    pub fn divide(&self, divisor: &Polynomial, scaling_factor: f64) -> Polynomial {
+        let mut result_coeffs = Vec::with_capacity(self.coeffs.len());
+
+        for (a, b) in self.coeffs.iter().zip(divisor.coeffs.iter()) {
+            // Check for zero in the divisor to avoid division by zero
+            if *b == 0 {
+                panic!("Division by zero encountered in polynomial division");
+            }
+
+            // Perform the division and scaling
+            let scaled_result = (*a as f64 / *b as f64) * scaling_factor;
+
+            // Convert the scaled result to an integer and push it into the result coefficients
+            result_coeffs.push(scaled_result.round() as i64);
+        }
+
+        // Return a new polynomial with the resulting coefficients after division
+        Polynomial::new(result_coeffs)
     }
 }
