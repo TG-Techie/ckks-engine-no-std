@@ -2,8 +2,6 @@ use crate::polynomial::Polynomial;
 use rand::Rng;
 use log::{info};
 
-// Define a constant scaling factor for encoding and decoding
-pub const SCALE: f64 = 1e5;  // Use a fixed scaling factor
 
 // Rounds a given value to a specified number of decimal places
 fn round_to(value: f64, decimal_places: usize) -> f64 {
