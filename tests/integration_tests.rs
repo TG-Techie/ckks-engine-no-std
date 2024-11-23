@@ -220,7 +220,9 @@ fn test_floating_point_operations() {
 fn initialize_ckks() -> (CKKSEncryptor, CKKSDecryptor) { //TO-DO remove redundant declarations in arithmetic tests and use this function
     let keygen = KeyGenerator::new();
     let (public_key, secret_key) = keygen.generate_keys();
-    let params = CkksParameters::new(2048, 1000000000000007);
+    // let params = CkksParameters::new(2048, 1000000000000007);
+    let params = CkksParameters::new(4096, 1000000000000007); // Larger modulus
+
     let encryptor = CKKSEncryptor::new(public_key.clone(), params.clone());
     let decryptor = CKKSDecryptor::new(secret_key.clone(), params.clone());
     (encryptor, decryptor)
@@ -239,18 +241,32 @@ fn map_to_nearest_ascii(val: f64) -> char {
     }
 }
 
+fn map_to_nearest_unicode(val: f64) -> char {
+    let rounded_val = val.round() as u32;
+    std::char::from_u32(rounded_val).unwrap_or('?') // Use '?' for invalid Unicode values
+
+
+    // if let Some(character) = std::char::from_u32(rounded_val) {
+    //     character
+    // } else {
+    //     '?' // Fallback for non-valid Unicode values
+    // }
+
+}
+
+
 #[test]
 fn test_character_encoding_encrypting_and_decoding() {
 
     let (encryptor, decryptor) = initialize_ckks();
-    let original_string = "Hello Team! I hope project is going well.";
+    let original_string = " こんにちは Hello Team! I hope project is going well.";
     let encoded = encode_string(&original_string);
     let encrypted_data = encryptor.encrypt_collection(&encoded);
     let decrypted_data = decryptor.decrypt(&encrypted_data);
 
     let decrypted_string: String = decrypted_data
         .iter()
-        .map(|&val| map_to_nearest_ascii(val))
+        .map(|&val| map_to_nearest_unicode(val))
         .collect();
 
     assert_eq!(decrypted_string, original_string, "String encoding or decryption failed");
@@ -272,27 +288,33 @@ fn test_homomorphic_length_calculation() {
 
 #[test]
 fn test_homomorphic_concatenation() {
-
     let (encryptor, decryptor) = initialize_ckks();
 
-    let string1 = "Hello";
-    let string2 = "World";
+    let string1 = "こんにちは";
+    let string2 = Some("World");
     let encoded1 = encode_string(&string1);
-    let encoded2 = encode_string(&string2);
     let encrypted_data1 = encryptor.encrypt_collection(&encoded1);
-    let encrypted_data2 = encryptor.encrypt_collection(&encoded2);
 
-    let concatenated_encrypted = encryptor.concatenate_encrypted_strings(&encrypted_data1, &encrypted_data2);
-    let decrypted_data = decryptor.decrypt(&concatenated_encrypted);
+    if let Some(inner_string2) = string2 {
 
-    let decrypted_string: String = decrypted_data
-        .iter()
-        .map(|&val| (val.round() as u8) as char)
-        .collect();
+        let encoded2 = encode_string(inner_string2);
+        let encrypted_data2 = encryptor.encrypt_collection(&encoded2);
 
-    let expected_string = format!("{}{}", string1, string2);
-    assert_eq!(decrypted_string, expected_string, "Homomorphic concatenation failed");
+        let concatenated_encrypted = encryptor.concatenate_encrypted_strings(&encrypted_data1, &encrypted_data2);
+        let decrypted_data = decryptor.decrypt(&concatenated_encrypted);
+
+        // mapping to nearest unicode instead of ascii
+        let decrypted_string: String = decrypted_data
+            .iter()
+            .map(|&val| map_to_nearest_unicode(val))
+            .collect();
+
+        let expected_string = format!("{}{}", string1, inner_string2);
+        assert_eq!(decrypted_string, expected_string, "Homomorphic concatenation failed");
+    }
 }
+
+
 
 #[test]
 fn test_homomorphic_substring_extraction() {
@@ -313,4 +335,94 @@ fn test_homomorphic_substring_extraction() {
 
     let expected_string = "World";
     assert_eq!(decrypted_string, expected_string, "Substring extraction failed");
+}
+fn test_character_encoding_encrypting_and_decoding_with_unicode() {
+    let (encryptor, decryptor) = initialize_ckks();
+
+    let original_string = "Hello 😀 こんにちは 你好!";
+    let encoded = encode_string(&original_string);
+    let encrypted_data = encryptor.encrypt_collection(&encoded);
+    let decrypted_data = decryptor.decrypt(&encrypted_data);
+
+    let decrypted_string: String = decrypted_data
+        .iter()
+        .map(|&val| map_to_nearest_unicode(val))
+        .collect();
+    println!("Decrypted String is  : {decrypted_string}");
+    assert_eq!(decrypted_string, original_string, "Unicode encoding or decryption failed");
+}
+
+#[test]
+fn test_unicode_edge_cases() {
+    let (encryptor, decryptor) = initialize_ckks();
+    let original_string = "\u{7F}\u{80}\u{FFFF}\u{1F600}"; // ASCII max, Unicode start, max BMP, emoji
+    let encoded = encode_string(&original_string);
+    let encrypted_data = encryptor.encrypt_collection(&encoded);
+    let decrypted_data = decryptor.decrypt(&encrypted_data);
+
+    let decrypted_string: String = decrypted_data
+        .iter()
+        .map(|&val| map_to_nearest_unicode(val))
+        .collect();
+
+    assert_eq!(decrypted_string, original_string, "Unicode edge case failed");
+}
+
+#[test]
+fn test_noise_resilience() {
+    let (encryptor, decryptor) = initialize_ckks();
+    let original_string = "NoiseTest😀";
+    let encoded = encode_string(&original_string);
+
+    // Introduce noise
+    let mut noisy_encoded: Vec<f64> = encoded.iter().map(|&x| x + 0.001).collect();
+    let encrypted_data = encryptor.encrypt_collection(&noisy_encoded);
+    let decrypted_data = decryptor.decrypt(&encrypted_data);
+
+    let decrypted_string: String = decrypted_data
+        .iter()
+        .map(|&val| map_to_nearest_unicode(val))
+        .collect();
+
+    assert_eq!(decrypted_string, original_string, "Noise resilience test failed");
+}
+
+#[test]
+fn test_large_string_handling() {
+    let (encryptor, decryptor) = initialize_ckks();
+    // let original_string = "A".repeat(10000000); // String with 10,000,000 'A's
+    let original_string = "A".repeat(100000); // String with 100,000 'A's
+
+    // Encode and encrypt in chunks
+    let chunk_size = 1000;
+    let chunks: Vec<&str> = original_string
+        .as_bytes()
+        .chunks(chunk_size)
+        .map(std::str::from_utf8)
+        .collect::<Result<Vec<_>, _>>()
+        .unwrap();
+
+    let mut encrypted_chunks = vec![];
+    for chunk in chunks {
+        let encoded_chunk = encode_string(&chunk);
+        let encrypted_chunk = encryptor.encrypt_collection(&encoded_chunk);
+        encrypted_chunks.push(encrypted_chunk);
+    }
+
+    // Decrypt and reconstruct the string
+    let mut decrypted_chunks = vec![];
+    for encrypted_chunk in encrypted_chunks {
+        let decrypted_chunk = decryptor.decrypt(&encrypted_chunk);
+        let chunk_string: String = decrypted_chunk
+            .iter()
+            .map(|&val| map_to_nearest_unicode(val))
+            .collect();
+        decrypted_chunks.push(chunk_string);
+    }
+
+    let reconstructed_string = decrypted_chunks.concat();
+    assert_eq!(
+        reconstructed_string, original_string,
+        "Large string handling failed"
+    );
 }
