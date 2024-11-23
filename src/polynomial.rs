@@ -1,3 +1,5 @@
+use std::panic;
+
 #[derive(Debug, Clone)]
 pub struct Polynomial {
     pub coeffs: Vec<i64>,  // Coefficients for the polynomial
@@ -73,21 +75,60 @@ impl Polynomial {
     }
 
     pub fn divide(&self, divisor: &Polynomial, scaling_factor: f64) -> Polynomial {
-        let mut result_coeffs = Vec::with_capacity(self.coeffs.len());
- 
-        for (a, b) in self.coeffs.iter().zip(divisor.coeffs.iter()) {
-            // Check for zero in the divisor to avoid division by zero
-            if *b == 0 {
-                panic!("Division by zero encountered in polynomial division");
+        let mut result_coeffs = Vec::new();
+
+        // Handle scalar division if divisor has only one coefficient
+        if divisor.coeffs.len() == 1 {
+            let scalar = divisor.coeffs[0];
+            if scalar == 0 {
+                eprintln!("Division by zero encountered in scalar divisor. Skipping computation.");
+                return Polynomial::new(vec![]); // Return an empty polynomial
             }
- 
-            // Perform the division and scaling
-            let scaled_result = (*a as f64 / *b as f64) * scaling_factor;
-           
-            // Convert the scaled result to an integer and push it into the result coefficients
-            result_coeffs.push(scaled_result.round() as i64);
+
+            for a in &self.coeffs {
+                let result = panic::catch_unwind(|| {
+                    let scaled_result = (*a as f64 / scalar as f64) * scaling_factor;
+                    scaled_result.round() as i64
+                });
+
+                match result {
+                    Ok(value) => result_coeffs.push(value),
+                    Err(_) => {
+                        eprintln!("Panic occurred during scalar division. Skipping coefficient.");
+                        result_coeffs.push(0); // Default value on panic
+                    }
+                }
+            }
+        } else {
+            // Handle polynomial division
+            for i in 0..std::cmp::max(self.coeffs.len(), divisor.coeffs.len()) {
+                let a = self.coeffs.get(i).copied().unwrap_or(0); // Default to 0 if self.coeffs is shorter
+                let b = divisor.coeffs.get(i).copied().unwrap_or(0); // Default to 0 for missing divisor terms
+
+                if b == 0 {
+                    eprintln!(
+                        "Division by zero encountered at index {}. Defaulting to 0.",
+                        i
+                    );
+                    result_coeffs.push(0);
+                    continue;
+                }
+
+                let result = panic::catch_unwind(|| {
+                    let scaled_result = (a as f64 / b as f64) * scaling_factor;
+                    scaled_result.round() as i64
+                });
+
+                match result {
+                    Ok(value) => result_coeffs.push(value),
+                    Err(_) => {
+                        eprintln!("Panic occurred during polynomial division at index {}. Defaulting to 0.", i);
+                        result_coeffs.push(0); // Default value on panic
+                    }
+                }
+            }
         }
- 
+
         // Return a new polynomial with the resulting coefficients after division
         Polynomial::new(result_coeffs)
     }
