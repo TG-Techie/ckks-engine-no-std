@@ -135,5 +135,102 @@ fn test_floating_point_operations() {
         "Truncate operation failed."
     );
 }
-    
 
+
+fn initialize_ckks() -> (CKKSEncryptor, CKKSDecryptor) { //TO-DO remove redundant declarations in arithmetic tests and use this function
+    let keygen = KeyGenerator::new();
+    let (public_key, secret_key) = keygen.generate_keys();
+    let params = CkksParameters::new(2048, 1000000000000007);
+    let encryptor = CKKSEncryptor::new(public_key.clone(), params.clone());
+    let decryptor = CKKSDecryptor::new(secret_key.clone(), params.clone());
+    (encryptor, decryptor)
+}
+
+fn encode_string(input: &str) -> Vec<f64> {
+    input.chars().map(|c| c as u32 as f64).collect()
+}
+
+fn map_to_nearest_ascii(val: f64) -> char {
+    let rounded_val = val.round() as u8;
+    if rounded_val.is_ascii() {
+        rounded_val as char
+    } else {
+        '?' // Fallback for non-ASCII values
+    }
+}
+
+#[test]
+fn test_character_encoding_encrypting_and_decoding() {
+
+    let (encryptor, decryptor) = initialize_ckks();
+    let original_string = "Hello Team! I hope project is going well.";
+    let encoded = encode_string(&original_string);
+    let encrypted_data = encryptor.encrypt_collection(&encoded);
+    let decrypted_data = decryptor.decrypt(&encrypted_data);
+
+    let decrypted_string: String = decrypted_data
+        .iter()
+        .map(|&val| map_to_nearest_ascii(val))
+        .collect();
+
+    assert_eq!(decrypted_string, original_string, "String encoding or decryption failed");
+}
+
+#[test]
+fn test_homomorphic_length_calculation() {
+
+    let (encryptor, _) = initialize_ckks();
+    let original_string = "TestLength";
+    let encoded = encode_string(&original_string);
+    let encrypted_data = encryptor.encrypt_collection(&encoded);
+
+    let length = encryptor.homomorphic_length(&encrypted_data);
+
+    let expected_length = original_string.len();
+    assert_eq!(length, expected_length, "Homomorphic length calculation failed");
+}
+
+#[test]
+fn test_homomorphic_concatenation() {
+
+    let (encryptor, decryptor) = initialize_ckks();
+
+    let string1 = "Hello";
+    let string2 = "World";
+    let encoded1 = encode_string(&string1);
+    let encoded2 = encode_string(&string2);
+    let encrypted_data1 = encryptor.encrypt_collection(&encoded1);
+    let encrypted_data2 = encryptor.encrypt_collection(&encoded2);
+
+    let concatenated_encrypted = encryptor.concatenate_encrypted_strings(&encrypted_data1, &encrypted_data2);
+    let decrypted_data = decryptor.decrypt(&concatenated_encrypted);
+
+    let decrypted_string: String = decrypted_data
+        .iter()
+        .map(|&val| (val.round() as u8) as char)
+        .collect();
+
+    let expected_string = format!("{}{}", string1, string2);
+    assert_eq!(decrypted_string, expected_string, "Homomorphic concatenation failed");
+}
+
+#[test]
+fn test_homomorphic_substring_extraction() {
+    let (encryptor, decryptor) = initialize_ckks();
+    let original_string = "HelloWorld";
+    let encoded = encode_string(&original_string);
+    let encrypted_data = encryptor.encrypt_collection(&encoded);
+
+    let substring_start = 5;
+    let substring_end = 10;
+    let extracted_encrypted = encryptor.extract_encrypted_substring(&encrypted_data, substring_start..substring_end);
+
+    let decrypted_data = decryptor.decrypt(&extracted_encrypted);
+    let decrypted_string: String = decrypted_data
+        .iter()
+        .map(|&val| (val.round() as u8) as char)
+        .collect();
+
+    let expected_string = "World";
+    assert_eq!(decrypted_string, expected_string, "Substring extraction failed");
+}
