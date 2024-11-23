@@ -208,9 +208,7 @@ impl CKKSEncryptor {
             // Multiply the result by cipher polynomial
             let temp = self.homomorphic_multiply(&result, cipher);
             result = temp;
-            println!("bro the result is {:?}",result);
         }
-        println!("bro the result is {:?}",result);
         // Perform modular reduction to ensure the result fits within the modulus
         let reduced_result = mod_reduce(&result, self.params.modulus);
         info!("Result after homomorphic exponentiation and mod reduction: {:?}", reduced_result);
