@@ -4,8 +4,15 @@ FROM rust:latest
 # Set the working directory inside the container
 WORKDIR /usr/src/ckks-engine
 
+# Install nightly Rust toolchain
+RUN rustup install nightly
+RUN rustup default nightly
+
 # Copy the rest of the project files
-COPY . .
+COPY . /usr/src/ckks-engine
+
+# Install `cargo-fuzz` and dependencies
+RUN cargo install cargo-fuzz
 
 # Build the project using Cargo
 RUN cargo build
