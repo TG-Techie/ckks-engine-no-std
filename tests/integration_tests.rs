@@ -290,6 +290,21 @@ fn test_homomorphic_concatenation() {
     }
 }
 
+#[test]
+fn test_encrypt_and_decrypt_string() {
+    let (encryptor, decryptor) = initialize_ckks();
+
+    let original_string = "Hello Homomorphic World!";
+    let encrypted_string = encryptor.encrypt_string(original_string);
+    let decrypted_string = decryptor.decrypt_string(&encrypted_string);
+
+    assert_eq!(
+        decrypted_string, original_string,
+        "Encrypt and decrypt failed. Original: {}, Decrypted: {}",
+        original_string, decrypted_string
+    );
+}
+
 
 
 #[test]
@@ -383,3 +398,156 @@ fn test_large_string_handling() {
 
     // println!("Test passed: Large string handled successfully!");
 }
+
+#[test]
+fn test_combined_string_operations() {
+    let (encryptor, decryptor) = initialize_ckks();
+
+    let string1 = "Hello";
+    let string2 = "Homomorphic";
+    let string3 = "World";
+
+    // Encrypt the strings
+    let encrypted_string1 = encryptor.encrypt_string(string1);
+    let encrypted_string2 = encryptor.encrypt_string(string2);
+    let encrypted_string3 = encryptor.encrypt_string(string3);
+
+    // Concatenate the encrypted strings
+    let concatenated_encrypted = encryptor.concatenate_encrypted_strings(
+        &encryptor.concatenate_encrypted_strings(&encrypted_string1, &encrypted_string2),
+        &encrypted_string3,
+    );
+
+    // Decrypt the concatenated string
+    let decrypted_concatenated = decryptor.decrypt_string(&concatenated_encrypted);
+
+    // Verify the length of the concatenated string
+    let concatenated_length = encryptor.homomorphic_length(&concatenated_encrypted);
+
+    // Extract a substring
+    let substring_range = 5..16; // Should extract "Homomorphic"
+    let extracted_encrypted = encryptor.extract_encrypted_substring(&concatenated_encrypted, substring_range.clone());
+    let decrypted_extracted = decryptor.decrypt_string(&extracted_encrypted);
+
+    // Assert equality
+    let expected_concatenated = format!("{}{}{}", string1, string2, string3);
+    let expected_substring = &expected_concatenated[substring_range];
+    assert_eq!(
+        decrypted_concatenated, expected_concatenated,
+        "Concatenation failed. Expected: {}, Found: {}",
+        expected_concatenated, decrypted_concatenated
+    );
+    assert_eq!(
+        concatenated_length, expected_concatenated.len(),
+        "Length mismatch. Expected: {}, Found: {}",
+        expected_concatenated.len(), concatenated_length
+    );
+    assert_eq!(
+        decrypted_extracted, expected_substring,
+        "Substring extraction failed. Expected: {}, Found: {}",
+        expected_substring, decrypted_extracted
+    );
+}
+
+#[test]
+fn test_encrypt_and_decrypt_emojis() {
+    let (encryptor, decryptor) = initialize_ckks();
+
+    let original_string = "😀😃😄😁😂🤣😜";
+
+    // Encrypt the string
+    let encrypted_string = encryptor.encrypt_string(original_string);
+
+    // Decrypt the string
+    let decrypted_string = decryptor.decrypt_string(&encrypted_string);
+
+    // Assert equality
+    assert_eq!(
+        decrypted_string, original_string,
+        "Emoji encryption and decryption failed. Original: {}, Decrypted: {}",
+        original_string, decrypted_string
+    );
+}
+
+#[test]
+fn test_encrypt_and_decrypt_multilingual() {
+    let (encryptor, decryptor) = initialize_ckks();
+
+    let original_string = "你好世界🌏 Hola Mundo नमस्ते दुनिया";
+
+    // Encrypt the string
+    let encrypted_string = encryptor.encrypt_string(original_string);
+
+    // Decrypt the string
+    let decrypted_string = decryptor.decrypt_string(&encrypted_string);
+
+    // Assert equality
+    assert_eq!(
+        decrypted_string, original_string,
+        "Multilingual string encryption and decryption failed. Original: {}, Decrypted: {}",
+        original_string, decrypted_string
+    );
+}
+
+#[test]
+fn test_concatenate_strings_with_emojis() {
+    let (encryptor, decryptor) = initialize_ckks();
+
+    // let string1 = "Hello 😀";
+    // let string2 = "World 🌍";
+
+    let string1 = "你好世界🌏 Hola Mundo!";
+    let string2 = "नमस्ते दुनिया";
+    // Encrypt the strings
+    let encrypted_string1 = encryptor.encrypt_string(string1);
+    let encrypted_string2 = encryptor.encrypt_string(string2);
+
+    // Concatenate the encrypted strings
+    let concatenated_encrypted = encryptor.concatenate_encrypted_strings(&encrypted_string1, &encrypted_string2);
+
+    // Decrypt the concatenated string
+    let decrypted_concatenated = decryptor.decrypt_string(&concatenated_encrypted);
+
+    // Assert equality
+    let expected_concatenated = format!("{}{}", string1, string2);
+    println!("Concatednated String is : {}",decrypted_concatenated);
+    assert_eq!(
+        decrypted_concatenated, expected_concatenated,
+        "Concatenation with emojis failed. Expected: {}, Found: {}",
+        expected_concatenated, decrypted_concatenated
+    );
+}
+
+
+//This is not possible
+// #[test]
+// fn test_extract_multilingual_substring() {
+//     let (encryptor, decryptor) = initialize_ckks();
+//
+//     let original_string = "你好世界🌏 Hola Mundo नमस्ते दुनिया";
+//     let substring_chars = 0..3; // Extract characters, not bytes (first 3 characters: "你好世")
+//
+//     // Encrypt the string
+//     let encrypted_string = encryptor.encrypt_string(original_string);
+//
+//     // Convert character range to byte indices
+//     let mut char_indices = original_string.char_indices().map(|(i, _)| i).collect::<Vec<_>>();
+//     char_indices.push(original_string.len()); // Include the string's total length as the last boundary
+//
+//     let start_byte = char_indices[substring_chars.start];
+//     let end_byte = char_indices[substring_chars.end];
+//
+//     // Extract the substring safely using valid byte indices
+//     let extracted_encrypted = encryptor.extract_encrypted_substring(&encrypted_string, start_byte..end_byte);
+//
+//     // Decrypt the extracted substring
+//     let decrypted_extracted = decryptor.decrypt_string(&extracted_encrypted);
+//
+//     // Assert equality
+//     let expected_substring = &original_string[start_byte..end_byte];
+//     assert_eq!(
+//         decrypted_extracted, expected_substring,
+//         "Multilingual substring extraction failed. Expected: {}, Found: {}",
+//         expected_substring, decrypted_extracted
+//     );
+// }
