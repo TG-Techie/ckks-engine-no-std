@@ -339,49 +339,47 @@ fn validate_string_size(size: usize) -> bool {
 
 #[test]
 fn test_large_string_handling() {
+    // Step 1: Initialize CKKS system
     let (encryptor, decryptor) = initialize_ckks(); // Replace with actual initialization logic
 
-    // Use a test string size
-    let desired_size = 100000; // Intentionally exceeding the limit for testing
-
-    // Step 2: Validate the string size
-    if !validate_string_size(desired_size) {
-        println!("Test aborted due to size validation failure.");
-        return; // Exit the function safely
+    // Step 2: Define desired string size and validate
+    let desired_size = 100000; // Intentionally large string size for testing
+    if desired_size > 1_000_000 {
+        println!("Test aborted: string size exceeds allowed limit.");
+        return; // Exit safely if size is too large
     }
 
     // Step 3: Create the original string
     let original_string = "A".repeat(desired_size);
 
-    // Encode and encrypt in chunks
-    let chunk_size = 1000;
-    let chunks: Vec<&[u8]> = original_string.as_bytes().chunks(chunk_size).collect();
+    // Step 4: Encode and encrypt in chunks
+    let chunk_size = 1000; // Divide the string into manageable chunks
+    let chunks: Vec<&str> = original_string
+        .as_bytes()
+        .chunks(chunk_size)
+        .map(|chunk| std::str::from_utf8(chunk).unwrap())
+        .collect();
 
     let mut encrypted_chunks = vec![];
     for chunk in chunks {
-        // Convert &[u8] to &str
-        let encoded_chunk = encode_string(std::str::from_utf8(chunk).unwrap()); // Replace with actual encoding logic
-        let encrypted_chunk = encryptor.encrypt_collection(&encoded_chunk); // Encrypt
+        let encrypted_chunk = encryptor.encrypt_string(chunk); // Encrypt each chunk
         encrypted_chunks.push(encrypted_chunk);
     }
 
-
-    // Decrypt and reconstruct the string
+    // Step 5: Decrypt and reconstruct the string
     let mut decrypted_chunks = vec![];
-    for encrypted_chunk in encrypted_chunks {
-        let decrypted_chunk = decryptor.decrypt(&encrypted_chunk); // Decrypt
-        let chunk_string: String = decrypted_chunk
-            .iter()
-            .map(|&val| map_to_nearest_unicode(val)) // Replace with actual mapping logic
-            .collect();
-        decrypted_chunks.push(chunk_string);
+    for encrypted_chunk in &encrypted_chunks {
+        let decrypted_chunk = decryptor.decrypt_string(encrypted_chunk); // Decrypt each chunk
+        decrypted_chunks.push(decrypted_chunk);
     }
 
-    let reconstructed_string = decrypted_chunks.concat();
+    let reconstructed_string: String = decrypted_chunks.concat(); // Reconstruct the original string
 
-    // Assert the reconstructed string matches the original
+    // Step 6: Assert the reconstructed string matches the original
     assert_eq!(
         reconstructed_string, original_string,
-        "Large string handling failed"
+        "Large string handling failed: reconstructed string does not match original."
     );
+
+    // println!("Test passed: Large string handled successfully!");
 }
