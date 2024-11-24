@@ -95,38 +95,77 @@ pub fn mod_reduce_string(poly: &Polynomial, modulus: i64) -> Polynomial {
 }
 
 
+// pub fn encode_string(plaintext: &str, scaling_factor: f64) -> Polynomial {
+//     if scaling_factor <= 0.0 {
+//         panic!("Scaling factor must be positive");
+//     }
+//
+//     // Convert each character to its ASCII/Unicode value and scale
+//     let coeffs: Vec<i64> = plaintext.chars()
+//         .map(|c| (c as i64 * scaling_factor as i64))  // Scale and collect coefficients
+//         .collect();
+//
+//     info!("Encoded string '{}' as polynomial coefficients: {:?}", plaintext, coeffs);
+//
+//     Polynomial::new(coeffs)  // Return the polynomial with the encoded coefficients
+// }
+//
+//
+// // Decode polynomial back to a string
+// pub fn decode_string(ciphertext: &Polynomial, scaling_factor: f64) -> String {
+//     if scaling_factor <= 0.0 {
+//         panic!("Scaling factor must be positive");
+//     }
+//
+//     // Reverse the scaling factor and convert each coefficient back to its character representation
+//     let decoded_chars: String = ciphertext.coeffs.iter()
+//         .map(|&c| {
+//             let value = c as f64 / scaling_factor;
+//             // Convert the value back to a character
+//             value.round() as u8 as char
+//         })
+//         .collect();
+//
+//     info!("Decoded polynomial {:?} back to string: '{}'", ciphertext.coeffs, decoded_chars);
+//
+//     decoded_chars  // Return the decoded string
+// }
+
 pub fn encode_string(plaintext: &str, scaling_factor: f64) -> Polynomial {
     if scaling_factor <= 0.0 {
         panic!("Scaling factor must be positive");
     }
-    
-    // Convert each character to its ASCII/Unicode value and scale
-    let coeffs: Vec<i64> = plaintext.chars()
-        .map(|c| (c as i64 * scaling_factor as i64))  // Scale and collect coefficients
-        .collect();
-    
-    info!("Encoded string '{}' as polynomial coefficients: {:?}", plaintext, coeffs);
-    
-    Polynomial::new(coeffs)  // Return the polynomial with the encoded coefficients
-}
 
+    // Convert each character to its Unicode code point and scale it
+    let coeffs: Vec<i64> = plaintext.chars()
+        .map(|c| {
+            let unicode_val = c as u32; // Get Unicode code point
+            let scaled_val = (unicode_val as f64 * scaling_factor).round(); // Scale and round
+            scaled_val as i64 // Convert to i64 for polynomial storage
+        })
+        .collect();
+
+    info!("Encoded string '{}' as polynomial coefficients: {:?}", plaintext, coeffs);
+
+    Polynomial::new(coeffs) // Return the polynomial with encoded coefficients
+}
 
 // Decode polynomial back to a string
 pub fn decode_string(ciphertext: &Polynomial, scaling_factor: f64) -> String {
     if scaling_factor <= 0.0 {
         panic!("Scaling factor must be positive");
     }
-    
-    // Reverse the scaling factor and convert each coefficient back to its character representation
+
+    // Reverse scaling and convert coefficients back to Unicode characters
     let decoded_chars: String = ciphertext.coeffs.iter()
         .map(|&c| {
-            let value = c as f64 / scaling_factor;
-            // Convert the value back to a character
-            value.round() as u8 as char
+            let scaled_val = c as f64 / scaling_factor; // Reverse scaling
+            let unicode_val = scaled_val.round() as u32; // Convert back to Unicode value
+            std::char::from_u32(unicode_val).unwrap_or('?') // Map to character or '?' if invalid
         })
         .collect();
-    
+
     info!("Decoded polynomial {:?} back to string: '{}'", ciphertext.coeffs, decoded_chars);
-    
-    decoded_chars  // Return the decoded string
+
+    decoded_chars // Return the decoded string
 }
