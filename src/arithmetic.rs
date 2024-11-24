@@ -216,4 +216,33 @@ impl CKKSEncryptor {
         reduced_result
     }
 
+    pub fn homomorphic_divide_with_constant(&self, cipher: &Polynomial, constant: i64) -> Polynomial {
+        // Gracefully handle the case when the constant is zero
+        if constant == 0 {
+            info!("Division by zero is not allowed. Returning the original polynomial unchanged.");
+            return cipher.clone(); // Return the original polynomial as is
+        }
+
+        // Scale the constant to match the ciphertext's scale
+        let scaling_factor = 10_000_000; // Assuming 1e7 scaling factor
+        let scaled_constant = constant * scaling_factor;
+
+        // Compute the reciprocal of the scaled constant
+        let reciprocal = scaling_factor / scaled_constant; // This is effectively 1/constant in scaled form
+
+        // Multiply the ciphertext by the reciprocal
+        let scaled_reciprocal_poly = Polynomial::new(vec![reciprocal]);
+        let result = self.homomorphic_multiply(cipher, &scaled_reciprocal_poly);
+
+        // Perform modular reduction to ensure the result fits within the modulus
+        let reduced_result = mod_reduce(&result, self.params.modulus);
+        info!(
+        "Result after homomorphic division with constant and mod reduction: {:?}",
+        reduced_result
+    );
+
+        reduced_result
+    }
+
+
 }
