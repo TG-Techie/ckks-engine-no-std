@@ -52,9 +52,7 @@ fn fuzz_homomorphic_operations(
     ];
     for (i, result) in add_results.iter().enumerate() {
         let decrypted_add = decryptor.decrypt(result);
-        println!("{:?},{:?}",decrypted_add,data1);
         assert_eq!(decrypted_add.len(), data1.len());
-        println!("Addition result {}: {:?}", i, decrypted_add);
     }
 
     // Test homomorphic_subtract with all combinations
@@ -66,7 +64,6 @@ fn fuzz_homomorphic_operations(
     for (i, result) in sub_results.iter().enumerate() {
         let decrypted_sub = decryptor.decrypt(result);
         assert_eq!(decrypted_sub.len(), data1.len());
-        println!("Subtraction result {}: {:?}", i, decrypted_sub);
     }
 
     // Test homomorphic_multiply with all combinations
@@ -78,19 +75,25 @@ fn fuzz_homomorphic_operations(
     for (i, result) in mul_results.iter().enumerate() {
         let decrypted_mul = decryptor.decrypt(result);
         assert_eq!(decrypted_mul.len(), data1.len());
-        println!("Multiplication result {}: {:?}", i, decrypted_mul);
     }
 
     // Test homomorphic_divide with all combinations
     let div_results = [
-        encryptor.homomorphic_divide(&enc_collection1, &enc_value),
-        encryptor.homomorphic_divide(&enc_value, &enc_collection1),
-        encryptor.homomorphic_divide(&enc_collection1, &enc_collection1),
+    encryptor.homomorphic_divide(&enc_collection1, &enc_value),
+    encryptor.homomorphic_divide(&enc_value, &enc_collection1),
+    encryptor.homomorphic_divide(&enc_collection1, &enc_collection1),
     ];
+
     for (i, result) in div_results.iter().enumerate() {
         let decrypted_div = decryptor.decrypt(result);
-        println!("{:?},{:?}",decrypted_div,data1);
-        println!("Division result {}: {:?}", i, decrypted_div);
+
+        // Skip assertion if the decrypted result is empty (indicating a division by zero)
+        if decrypted_div.is_empty() {
+            println!("Skipping assertion for index {} due to division by zero.", i);
+            continue;
+        }
+
+        assert_eq!(decrypted_div.len(), data1.len());
     }
 }
 
@@ -141,10 +144,7 @@ fn fuzz_advanced_operations(
     let decrypted_exp = decryptor.decrypt(&exp_result);
     assert_eq!(decrypted_exp.len(), data.len());
 
-    let div_result = encryptor.homomorphic_divide(&encrypted_data, &encrypted_value);
-    let decrypted_div = decryptor.decrypt(&div_result);
-    println!("{:?}", decrypted_div);
-    println!("{:?}", data);
+
 }
 
 fuzz_target!(|data: &[u8]| {
