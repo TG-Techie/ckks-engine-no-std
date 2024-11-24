@@ -155,28 +155,64 @@ env_logger = "0.10"
 
 To test and utilize the features of `ckks-engine`, a sample code is provided in examples directory. This code demonstrates the functionality of the encryption scheme and basic homomorphic operations.
 
-### Instructions to Run the Code
+## Instructions to Run the Code
 
-1. Clone the repository:
+### Option 1: Run from Source Code
+
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/Chandan-M-N/ckks-engine.git
-    ```
-2. Navigate to the project directory:
-    ```bash
-    cd ckks-engine
-    ```
-3. Build the project using cargo:
-    ```bash
-    cargo build
-    ```
-4. Run the example code:
+   ```
+2. **Navigate to the project directory:**
+   ```bash
+   cd ckks-engine
+   ```
+3. **Build the project using Cargo:**
+   ```bash
+   cargo build
+   ```
+4. **Run the example code:**
+   v1_examples: For public and private key generation, encryption, decryption, and operations like addition, subtraction, multiplication, and negation.
+   v2_examples: For floor, ceil, round, truncate, and string operations like length calculation, string concatenation, and substring extraction.
+   v3_examples: For advanced string operations (concatenation, substring extraction) and arithmetic operations (division, exponentiation).
 
-   v1_examples --> For public and private key generation, encryption, decryption including operations like addition, subtraction, multiplication and negation.
-   v2_examples --> For floor, ceil, round, truncate and string operations like length calculation, string concatenation and substring extraction.
-   v3_examples --> For advanced string operations (concatenation, substring extraction) and arithmetic operations (division, exponentiation).
+  Run any of the following commands to execute the examples:
 
-    ```bash
-    cargo run --example v1_examples
-    ```
+   ```bash
+   cargo run --example v1_examples
+   ```
+
+### Option 2: Run Using Docker
+
+Note: Make sure you have Docker installed and running on your system.
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Chandan-M-N/ckks-engine.git
+   ```
+2. **Navigate to the project directory:**
+   ```bash
+   cd ckks-engine
+   ```
+3. **Build the Docker image and run the container:**
+   ```bash
+   docker compose up -d
+   ```
+  This will create and build the Docker image in detached mode.
+
+4. **Run the examples in the container:**
+
+v1_examples: For public and private key generation, encryption, decryption, and operations like addition, subtraction, multiplication, and negation.
+```bash
+docker exec -it ckks-engine sh -c "cargo run --example v1_examples"
+```
+v2_examples: For floor, ceil, round, truncate, and string operations like length calculation, string concatenation, and substring extraction.
+```bash
+docker exec -it ckks-engine sh -c "cargo run --example v2_examples"
+```
+v3_examples: For advanced string operations (concatenation, substring extraction) and arithmetic operations (division, exponentiation).
+```bash
+docker exec -it ckks-engine sh -c "cargo run --example v3_examples"
+```
 
 This will execute the sample code, illustrating how to use the ckks-engine crate for encrypted computations.
