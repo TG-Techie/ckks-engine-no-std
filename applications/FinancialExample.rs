@@ -20,7 +20,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("Current working directory: {:?}", std::env::current_dir()?);
 
     // File path to the dataset
-    let file_path = "transactions_2024.csv";
+    let file_path = "transactions_2024.csv"; //Please update the file path , try to give absolute path.
+    // let file_path: &str = r"C:\Users\LibraryUser\Downloads\Fall2024\SecureProgramming\ckks-engine\ckks-engine-applications\src\transactions_2024.csv"; 
+
 
 
     // Specify the year and month to analyze
