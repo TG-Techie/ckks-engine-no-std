@@ -3,7 +3,7 @@
 A port of the [ckks-engine](https://github.com/Chandan-M-N/ckks-engine) to Rust's `#![no_std]` environment and use on embedded devices.
 
 ## Assumptions:
-- A global allocator is available,
+- A global allocator is available, ex: [embedded-alloc](https://github.com/rust-embedded/embedded-alloc).
 - For now, runnning on a chip with "hard float" capabilities, tested/ing for thumbv8m.main-none-eabihf at the the time of writing.
 
 ## TODOs:
