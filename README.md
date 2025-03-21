@@ -1,7 +1,21 @@
-# ckks-engine
+# ckks-engine-no-std
 
-[![Documentation](https://img.shields.io/badge/docs-latest-blue)](https://chandan-m-n.github.io/ckks-engine/ckks_engine/index.html)
-[![Crate](https://img.shields.io/crates/v/ckks-engine)](https://crates.io/crates/ckks-engine)
+A port of the [ckks-engine](https://github.com/Chandan-M-N/ckks-engine) to Rust's `#![no_std]` environment and use on embedded devices.
+
+## Assumptions:
+- A global allocator is available,
+- For now, runnning on a chip with "hard float" capabilities, tested/ing for thumbv8m.main-none-eabihf at the the time of writing.
+
+## TODOs:
+- [ ] Remove the use of the Mock RNG, substitute with dependency injection (likely an associated type).
+- [ ] Audit changes to the code. (most marked with commends starting with `// CHANGE`)
+- [ ] Confirm correctness of the soft implementation for `f64`'s `.ceil()`, `.floor()`, `.round()`, `.powi()` methods. (and add `#[always_inline]`)
+- [ ] Test on an embedded system.
+
+## ---- Original README included below ----
+
+<!-- [![Documentation](https://img.shields.io/badge/docs-latest-blue)](https://chandan-m-n.github.io/ckks-engine/ckks_engine/index.html)
+[![Crate](https://img.shields.io/crates/v/ckks-engine)](https://crates.io/crates/ckks-engine) -->
 
 `ckks-engine` is a Rust crate that provides an implementation of the CKKS (Cheon-Kim-Kim-Song) homomorphic encryption scheme. This enables encrypted computations on real numbers and strings while preserving the privacy of the underlying data. With `ckks-engine`, you can perform a wide range of mathematical operations on encrypted data, including addition, subtraction, multiplication, division, exponentiation, and more with some error accumulation in values due to the nature of approximate homomorphic encryption.
 
