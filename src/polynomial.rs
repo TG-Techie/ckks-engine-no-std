@@ -1,9 +1,21 @@
-use std::panic;
+// CHANGED: removed use of std::panic
+// use std::panic;
+
+//CHANGED: commented out eprintlns!(...) calls
+// see below for changes
+
+// CHANGED: added Vec for no_std
+use alloc::vec::Vec;
+
+// // CHANGED: uses of std:: to core::
 
 #[derive(Debug, Clone)]
 pub struct Polynomial {
-    pub coeffs: Vec<i64>,  // Coefficients for the polynomial
+    pub coeffs: Vec<i64>, // Coefficients for the polynomial
 }
+
+// CHANGED: added FloatPolyfill for no_std
+use crate::float_polyfill::FloatPolyfill;
 
 impl Polynomial {
     // Constructor to create a new Polynomial with given coefficients
@@ -13,42 +25,61 @@ impl Polynomial {
 
     //wrote this only for homomorphic truncate - we haven't used this anywhere apart from it
     pub fn decode(&self) -> Vec<i64> {
-        self.coeffs.iter().map(|&c| {
-            let real = (c as f64) / 10_000_000.0;
-            real.round() as i64 // Round to the nearest integer
-        }).collect()
+        self.coeffs
+            .iter()
+            .map(|&c| {
+                let real = (c as f64) / 10_000_000.0;
+                real.round() as i64 // Round to the nearest integer
+            })
+            .collect()
     }
 
     // Polynomial addition
     pub fn add(&self, other: &Polynomial) -> Polynomial {
         // Determine the maximum length of the two polynomials
         let len = self.coeffs.len().max(other.coeffs.len());
-        let mut result = vec![0; len];  // Initialize result vector with zeros
+        let mut result = vec![0; len]; // Initialize result vector with zeros
 
         // Add coefficients of both polynomials
         for i in 0..len {
-            let a = if i < self.coeffs.len() { self.coeffs[i] } else { 0 };  // Get coefficient from self or 0 if out of bounds
-            let b = if i < other.coeffs.len() { other.coeffs[i] } else { 0 }; // Get coefficient from other or 0 if out of bounds
-            result[i] = a + b;  // Add coefficients
+            let a = if i < self.coeffs.len() {
+                self.coeffs[i]
+            } else {
+                0
+            }; // Get coefficient from self or 0 if out of bounds
+            let b = if i < other.coeffs.len() {
+                other.coeffs[i]
+            } else {
+                0
+            }; // Get coefficient from other or 0 if out of bounds
+            result[i] = a + b; // Add coefficients
         }
 
-        Polynomial::new(result)  // Return new polynomial as the result
+        Polynomial::new(result) // Return new polynomial as the result
     }
 
     // Polynomial subtraction
     pub fn subtract(&self, other: &Polynomial) -> Polynomial {
         // Determine the maximum length of the two polynomials
         let len = self.coeffs.len().max(other.coeffs.len());
-        let mut result = vec![0; len];  // Initialize result vector with zeros
+        let mut result = vec![0; len]; // Initialize result vector with zeros
 
         // Subtract coefficients of the second polynomial from the first
         for i in 0..len {
-            let a = if i < self.coeffs.len() { self.coeffs[i] } else { 0 };  // Get coefficient from self or 0 if out of bounds
-            let b = if i < other.coeffs.len() { other.coeffs[i] } else { 0 }; // Get coefficient from other or 0 if out of bounds
-            result[i] = a - b;  // Subtract coefficients
+            let a = if i < self.coeffs.len() {
+                self.coeffs[i]
+            } else {
+                0
+            }; // Get coefficient from self or 0 if out of bounds
+            let b = if i < other.coeffs.len() {
+                other.coeffs[i]
+            } else {
+                0
+            }; // Get coefficient from other or 0 if out of bounds
+            result[i] = a - b; // Subtract coefficients
         }
 
-        Polynomial::new(result)  // Return new polynomial as the result
+        Polynomial::new(result) // Return new polynomial as the result
     }
 
     // Polynomial multiplication
@@ -60,7 +91,8 @@ impl Polynomial {
         // Multiply matching coefficients of both polynomials
         let min_len = self.coeffs.len().min(other.coeffs.len());
         for i in 0..min_len {
-            result_coeffs[i] = (self.coeffs[i] as f64 * other.coeffs[i] as f64) / 1e7; // Scale and store the product
+            result_coeffs[i] = (self.coeffs[i] as f64 * other.coeffs[i] as f64) / 1e7;
+            // Scale and store the product
         }
         // Create a new polynomial with rounded coefficients
         Polynomial::new(result_coeffs.iter().map(|&x| x.round() as i64).collect())
@@ -74,6 +106,8 @@ impl Polynomial {
         Polynomial::new(negated_coeffs.iter().map(|&x| x.round() as i64).collect())
     }
 
+    // CHANGED(PANIC)
+    // CHANGED(ERROR)
     pub fn divide(&self, divisor: &Polynomial, scaling_factor: f64) -> Polynomial {
         let mut result_coeffs = Vec::new();
 
@@ -81,51 +115,62 @@ impl Polynomial {
         if divisor.coeffs.len() == 1 {
             let scalar = divisor.coeffs[0];
             if scalar == 0 {
-                eprintln!("Division by zero encountered in scalar divisor. Skipping computation.");
+                // CHANGED(ERROR)
+                // eprintln!("Division by zero encountered in scalar divisor. Skipping computation.");
                 return Polynomial::new(vec![]); // Return an empty polynomial
             }
 
             for a in &self.coeffs {
-                let result = panic::catch_unwind(|| {
-                    let scaled_result = (*a as f64 / scalar as f64) * scaling_factor;
-                    scaled_result.round() as i64
-                });
+                // CHANGED(PANIC)
+                // let result = panic::catch_unwind(|| {
+                //     let scaled_result = (*a as f64 / scalar as f64) * scaling_factor;
+                //     scaled_result.round() as i64
+                // });
+                let scaled_result = ((*a as f64) / (scalar as f64)) * scaling_factor;
+                let result = scaled_result.round() as i64;
 
-                match result {
-                    Ok(value) => result_coeffs.push(value),
-                    Err(_) => {
-                        eprintln!("Panic occurred during scalar division. Skipping coefficient.");
-                        result_coeffs.push(0); // Default value on panic
-                    }
-                }
+                // match result {
+                //     Ok(value) => result_coeffs.push(value),
+                //     Err(_) => {
+                //         eprintln!("Panic occurred during scalar division. Skipping coefficient.");
+                //         result_coeffs.push(0); // Default value on panic
+                //     }
+                // }
+                result_coeffs.push(result);
             }
         } else {
             // Handle polynomial division
-            for i in 0..std::cmp::max(self.coeffs.len(), divisor.coeffs.len()) {
+            for i in 0..core::cmp::max(self.coeffs.len(), divisor.coeffs.len()) {
                 let a = self.coeffs.get(i).copied().unwrap_or(0); // Default to 0 if self.coeffs is shorter
                 let b = divisor.coeffs.get(i).copied().unwrap_or(0); // Default to 0 for missing divisor terms
 
                 if b == 0 {
-                    eprintln!(
-                        "Division by zero encountered at index {}. Defaulting to 0.",
-                        i
-                    );
+                    // CHANGED(ERROR)
+                    // eprintln!(
+                    //     "Division by zero encountered at index {}. Defaulting to 0.",
+                    //     i
+                    // );
                     result_coeffs.push(0);
                     continue;
                 }
 
-                let result = panic::catch_unwind(|| {
-                    let scaled_result = (a as f64 / b as f64) * scaling_factor;
-                    scaled_result.round() as i64
-                });
+                // CHANGED(PANIC)
+                // let result = panic::catch_unwind(|| {
+                //     let scaled_result = (a as f64 / b as f64) * scaling_factor;
+                //     scaled_result.round() as i64
+                // });
+                let scaled_result = ((a as f64) / (b as f64)) * scaling_factor;
+                let result = scaled_result.round() as i64;
 
-                match result {
-                    Ok(value) => result_coeffs.push(value),
-                    Err(_) => {
-                        eprintln!("Panic occurred during polynomial division at index {}. Defaulting to 0.", i);
-                        result_coeffs.push(0); // Default value on panic
-                    }
-                }
+                // CHANGED(ERROR)
+                // match result {
+                //     Ok(value) => result_coeffs.push(value),
+                //     Err(_) => {
+                //         eprintln!("Panic occurred during polynomial division at index {}. Defaulting to 0.", i);
+                //         result_coeffs.push(0); // Default value on panic
+                //     }
+                // }
+                result_coeffs.push(result);
             }
         }
 

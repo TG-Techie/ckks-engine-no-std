@@ -1,6 +1,6 @@
 #![no_main]
-use libfuzzer_sys::fuzz_target;
 use ckks_engine::*;
+use libfuzzer_sys::fuzz_target;
 
 // Helper to generate random parameters and keys
 fn setup_ckks() -> (CKKSEncryptor, CKKSDecryptor) {
@@ -16,7 +16,7 @@ fn setup_ckks() -> (CKKSEncryptor, CKKSDecryptor) {
 
 // Helper function to generate a random string from bytes
 fn generate_random_string(data: &[u8], max_length: usize) -> String {
-    let length = std::cmp::min(data.len(), max_length);
+    let length = core::cmp::min(data.len(), max_length);
     data.iter()
         .take(length)
         .map(|&b| (b % 94 + 32) as char) // Maps to printable ASCII characters
@@ -79,9 +79,9 @@ fn fuzz_homomorphic_operations(
 
     // Test homomorphic_divide with all combinations
     let div_results = [
-    encryptor.homomorphic_divide(&enc_collection1, &enc_value),
-    encryptor.homomorphic_divide(&enc_value, &enc_collection1),
-    encryptor.homomorphic_divide(&enc_collection1, &enc_collection1),
+        encryptor.homomorphic_divide(&enc_collection1, &enc_value),
+        encryptor.homomorphic_divide(&enc_value, &enc_collection1),
+        encryptor.homomorphic_divide(&enc_collection1, &enc_collection1),
     ];
 
     for (i, result) in div_results.iter().enumerate() {
@@ -89,7 +89,10 @@ fn fuzz_homomorphic_operations(
 
         // Skip assertion if the decrypted result is empty (indicating a division by zero)
         if decrypted_div.is_empty() {
-            println!("Skipping assertion for index {} due to division by zero.", i);
+            println!(
+                "Skipping assertion for index {} due to division by zero.",
+                i
+            );
             continue;
         }
 
@@ -106,7 +109,8 @@ fn fuzz_string_operations(
     let encrypted_string1 = encryptor.encrypt_string(string1);
     let encrypted_string2 = encryptor.encrypt_string(string2);
 
-    let concat_result = encryptor.concatenate_encrypted_strings(&encrypted_string1, &encrypted_string2);
+    let concat_result =
+        encryptor.concatenate_encrypted_strings(&encrypted_string1, &encrypted_string2);
     let decrypted_concat = decryptor.decrypt_string(&concat_result);
     assert!(decrypted_concat.contains(string1) && decrypted_concat.contains(string2));
 
@@ -143,8 +147,6 @@ fn fuzz_advanced_operations(
     let exp_result = encryptor.homomorphic_exponentiation(&encrypted_data, 3);
     let decrypted_exp = decryptor.decrypt(&exp_result);
     assert_eq!(decrypted_exp.len(), data.len());
-
-
 }
 
 fuzz_target!(|data: &[u8]| {

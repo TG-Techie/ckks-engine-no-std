@@ -1,0 +1,25 @@
+[1m[32m   Compiling[0m getrandom v0.2.15
+[0m[1m[38;5;9merror[E0463][0m[0m[1m: can't find crate for `std`[0m
+[0m [0m[0m[1m[38;5;12m--> [0m[0m/Users/tg-techie/.cargo/registry/src/index.crates.io-6f17d22bba15001f/getrandom-0.2.15/src/error_impls.rs:1:1[0m
+[0m  [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m1[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mextern crate std;[0m
+[0m  [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[38;5;9m^^^^^^^^^^^^^^^^^[0m[0m [0m[0m[1m[38;5;9mcan't find crate[0m
+[0m  [0m[0m[1m[38;5;12m|[0m
+[0m  [0m[0m[1m[38;5;12m= [0m[0m[1mnote[0m[0m: the `thumbv8m.main-none-eabihf` target may not support the standard library[0m
+
+[0m[1m[38;5;9merror[0m[0m[1m: target is not supported, for more information see: https://docs.rs/getrandom/#unsupported-targets[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0m/Users/tg-techie/.cargo/registry/src/index.crates.io-6f17d22bba15001f/getrandom-0.2.15/src/lib.rs:347:9[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m347[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[38;5;9m/[0m[0m [0m[0m        compile_error!("target is not supported, for more information see: \[0m
+[0m[1m[38;5;12m348[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[38;5;9m|[0m[0m [0m[0m                        https://docs.rs/getrandom/#unsupported-targets");[0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[38;5;9m|________________________________________________________________________^[0m
+
+[0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared crate or module `imp`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0m/Users/tg-techie/.cargo/registry/src/index.crates.io-6f17d22bba15001f/getrandom-0.2.15/src/lib.rs:398:9[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m398[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        imp::getrandom_inner(dest)?;[0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m         [0m[0m[1m[38;5;9m^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared crate or module `imp`[0m
+
+[0m[1mSome errors have detailed explanations: E0433, E0463.[0m
+[0m[1mFor more information about an error, try `rustc --explain E0433`.[0m
+[1m[31merror[0m[1m:[0m could not compile `getrandom` (lib) due to 3 previous errors
