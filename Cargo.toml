@@ -9,7 +9,7 @@ edition = "2021"
 [dependencies.rand]
 version = "0.8"          # Random number generation
 default-features = false
-features = ["small_rng"]
+# features = ["small_rng"]
 
 
 [dependencies.ff] # Finite field arithmetic

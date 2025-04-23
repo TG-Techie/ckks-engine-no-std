@@ -30,7 +30,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ckks-engine"
+name = "ckks-engine-no-std"
 version = "0.3.0"
 dependencies = [
  "approx",

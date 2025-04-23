@@ -93,3 +93,18 @@ impl FloatPolyfill for f64 {
         self - (self % 1.0)
     }
 }
+
+impl FloatPolyfill for f32 {
+    fn one() -> Self {
+        1.0
+    }
+
+    fn zero() -> Self {
+        0.0
+    }
+
+    fn floor(self) -> Self {
+        // cannot use `self.floor()` because it is not available in no_std
+        self - (self % 1.0)
+    }
+}

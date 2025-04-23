@@ -27,8 +27,8 @@ impl KeyGenerator {
     }
 
     // Function to generate a pair of public and secret keys
-    pub fn generate_keys(&self) -> (PublicKey, SecretKey) {
-        let mut rng = rand::rngs::mock::StepRng::new(0, 1); // Create a new random number generator using the mock_rng crate
+    pub fn generate_keys<R: Rng>(&self, rng: &mut R) -> (PublicKey, SecretKey) {
+        // let mut rng = rand::rngs::mock::StepRng::new(0, 1); // Create a new random number generator using the mock_rng crate
 
         // Generate secret key (random polynomial of size 2048)
         let sec_key_poly: Vec<i64> = (0..2048).map(|_| rng.gen_range(1..100)).collect();
