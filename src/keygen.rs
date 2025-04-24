@@ -26,7 +26,7 @@ impl KeyGenerator {
         KeyGenerator
     }
 
-    // Function to generate a pair of public and secret keys
+    /// Generates a pair of public and secret keys using the specified random number generator (thing that implements [`Rng`]).
     pub fn generate_keys<R: Rng>(&self, rng: &mut R) -> (PublicKey, SecretKey) {
         // let mut rng = rand::rngs::mock::StepRng::new(0, 1); // Create a new random number generator using the mock_rng crate
 
