@@ -11,7 +11,7 @@ use alloc::vec::Vec;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct Polynomial {
     pub coeffs: Vec<i64>, // Coefficients for the polynomial
 }

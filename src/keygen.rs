@@ -9,7 +9,7 @@ use alloc::vec::Vec;
 pub const KEY_LENGTH: usize = 2048; // Length of public & private key polynomials
 
 // Struct to represent the public key containing two polynomials
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct PublicKey {
     #[serde(with = "serde_arrays")]
     pub pk_0: [i64; KEY_LENGTH], // First polynomial of the public key
@@ -18,7 +18,7 @@ pub struct PublicKey {
 }
 
 // Struct to represent the secret key containing a polynomial
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct SecretKey {
     #[serde(with = "serde_arrays")]
     pub poly: [i64; KEY_LENGTH], // Polynomial of the secret key
