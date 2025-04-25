@@ -4,7 +4,12 @@ version = "0.3.0"
 edition = "2021"
 
 [dependencies]
-# cortex-m-rt = "0.7.5"
+serde_arrays = "0.2.0"
+
+[dependencies.serde]
+version = "1.0.219"
+default-features = false
+features = ["derive", "alloc"]
 
 [dependencies.rand]
 version = "0.8"          # Random number generation

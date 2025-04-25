@@ -9,7 +9,9 @@ use alloc::vec::Vec;
 
 // // CHANGED: uses of std:: to core::
 
-#[derive(Debug, Clone)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Polynomial {
     pub coeffs: Vec<i64>, // Coefficients for the polynomial
 }
