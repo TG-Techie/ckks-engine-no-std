@@ -45,12 +45,16 @@ impl KeyGenerator {
     pub fn generate_keys<R: Rng>(&self, rng: &mut R) -> (PublicKey, SecretKey) {
         // let mut rng = rand::rngs::mock::StepRng::new(0, 1); // Create a new random number generator using the mock_rng crate
 
-        // Generate secret key (random polynomial of size 2048)
-        let sec_key_poly: [i64; KEY_LENGTH] = (0..KEY_LENGTH)
-            .map(|_| rng.gen_range(1..100))
-            .collect::<Vec<i64>>()
-            .try_into()
-            .unwrap();
+        // // Generate secret key (random polynomial of size 2048)
+        // let sec_key_poly: [i64; KEY_LENGTH] = (0..KEY_LENGTH)
+        //     .map(|_| rng.gen_range(1..100))
+        //     // .collect::<Vec<i64>>()
+        //     .try_into()
+        //     .unwrap();
+        let mut sec_key_poly: [i64; KEY_LENGTH] = [0; KEY_LENGTH];
+        for i in 0..KEY_LENGTH {
+            sec_key_poly[i] = rng.gen_range(1..100);
+        }
 
         let sec_key = SecretKey { poly: sec_key_poly }; // Create secret key using the generated polynomial
 
