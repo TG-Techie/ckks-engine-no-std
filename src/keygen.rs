@@ -58,21 +58,30 @@ impl KeyGenerator {
 
         let sec_key = SecretKey { poly: sec_key_poly }; // Create secret key using the generated polynomial
 
-        // Generate a random polynomial for public key generation
-        let random_poly: [i64; KEY_LENGTH] = (0..2048)
-            .map(|_| rng.gen_range(1..100))
-            .collect::<Vec<i64>>()
-            .try_into()
-            .unwrap();
+        // // Generate a random polynomial for public key generation
+        // let random_poly: [i64; KEY_LENGTH] = (0..2048)
+        //     .map(|_| rng.gen_range(1..100))
+        //     .collect::<Vec<i64>>()
+        //     .try_into()
+        //     .unwrap();
+        let mut random_poly: [i64; KEY_LENGTH] = [0; KEY_LENGTH];
+        for i in 0..KEY_LENGTH {
+            random_poly[i] = rng.gen_range(1..100);
+        }
 
         // Create public key polynomials
-        let pk_0: [i64; KEY_LENGTH] = sec_key_poly
-            .iter()
-            .zip(&random_poly)
-            .map(|(&sk, &r)| -sk * r + rng.gen_range(-10..10)) // Compute pk_0 as -sk * random + noise
-            .collect::<Vec<i64>>()
-            .try_into()
-            .unwrap();
+        // let pk_0: [i64; KEY_LENGTH] = sec_key_poly
+        //     .iter()
+        //     .zip(&random_poly)
+        //     .map(|(&sk, &r)| -sk * r + rng.gen_range(-10..10)) // Compute pk_0 as -sk * random + noise
+        //     .collect::<Vec<i64>>()
+        //     .try_into()
+        //     .unwrap();
+        let mut pk_0: [i64; KEY_LENGTH] = [0; KEY_LENGTH];
+        for (i, (&sk, &r)) in sec_key_poly.iter().zip(&random_poly).enumerate() {
+            pk_0[i] = -sk * r + rng.gen_range(-10..10);
+        }
+
         let pk_1: [i64; KEY_LENGTH] = random_poly; // Set pk_1 to the random polynomial
 
         // Create public key with the generated polynomials
