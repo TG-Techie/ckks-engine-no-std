@@ -3,9 +3,6 @@ use rand::{self, Rng}; // Importing random number generator traits
 
 use serde::{Deserialize, Serialize};
 
-// CHANGED: added Vec for no_std
-use alloc::vec::Vec;
-
 pub const KEY_LENGTH: usize = 2048; // Length of public & private key polynomials
 
 // Struct to represent the public key containing two polynomials

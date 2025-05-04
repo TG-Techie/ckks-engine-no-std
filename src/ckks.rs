@@ -9,9 +9,10 @@ use alloc::vec::Vec;
 
 // CHANGED: added String for no_std
 use alloc::string::String;
+use serde::{Deserialize, Serialize};
 
 // Struct to hold CKKS parameters
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 pub struct CkksParameters {
     pub degree: usize, // Polynomial degree N
     pub modulus: i64,  // Prime modulus q
